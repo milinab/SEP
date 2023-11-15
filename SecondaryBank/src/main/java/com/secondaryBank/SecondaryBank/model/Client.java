@@ -1,4 +1,4 @@
-package model;
+package com.secondaryBank.SecondaryBank.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -19,9 +17,9 @@ import lombok.Setter;
 @Table(name = "clients")
 public class Client {
 
+    @Generated
     @Id
-    private String merchantId;
-    private String merchantPassword;
+    private String id;
     private double availableSum;
     private String pan;
     private String expDate;
