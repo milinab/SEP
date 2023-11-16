@@ -26,9 +26,7 @@ public class Transaction {
 
     @Id
     private Integer merchantOrderId;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "merchant_id")
-    private Client client;
+    private String merchantId;
     private double amount;
     private LocalDateTime merchantTimeStamp;
 
