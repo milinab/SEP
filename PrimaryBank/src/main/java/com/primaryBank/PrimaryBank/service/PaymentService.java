@@ -18,7 +18,6 @@ public class PaymentService {
     private TransactionRepository transactionRepository;
 
     public boolean clientExists(AuthRequest authRequest){
-        //Client client = new Client();
         Client client = clientRepository.findClientByMerchantId(authRequest.getMerchantId());
         if(client != null && client.getMerchantPassword().equals(authRequest.getMerchantPassword())){
             Transaction transaction = new Transaction(authRequest.getMerchantOrderId(), authRequest.getMerchantId(),
@@ -28,5 +27,6 @@ public class PaymentService {
         }else {
             return false;
         }
+        //return true;
     }
 }
