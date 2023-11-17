@@ -29,5 +29,5 @@ public class Transaction {
     private String merchantId;
     private double amount;
     private LocalDateTime merchantTimeStamp;
-
+    private Integer paymentId;
 }
