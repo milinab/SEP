@@ -9,10 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class AuthResponse {
-
-    private Integer paymentId;
-    private String paymentURL;
+public class BuyRequest {
+    private String merchantId;
     private Double amount;
-
+    // i jos preko cega ide placanje za sad samo kartica
 }

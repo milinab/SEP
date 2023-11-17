@@ -22,12 +22,16 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
-    @PostMapping(path = "/auth", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest authRequest) {
+    @PostMapping(path = "/auth")
+    public AuthResponse auth(@RequestBody AuthRequest authRequest) {
         if(paymentService.clientExists(authRequest)){
-            return new ResponseEntity<>(new AuthResponse(0, "", authRequest.getAmount()), HttpStatus.OK);
+            AuthResponse response = new AuthResponse(0, "succes", authRequest.getAmount());
+            System.out.println(response.getPaymentId());
+            System.out.println(response.getPaymentURL());
+            System.out.println(response.getAmount());
+            return response;
         }else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return null;
         }
     }
 }
