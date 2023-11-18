@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class PccRequest {
-    private Integer paymentId;
     private String pan;
     private String expDate;
     private String cvv;

@@ -27,7 +27,7 @@ public class PaymentController {
     public ResponseEntity<AuthResponse> buy(@RequestBody BuyRequest buyRequest) {
         // dohvatiti iz baze password na osnovu id-a i izgenerisati merchant order id
         AuthResponse response = primaryBankClient.auth(new AuthRequest(buyRequest.getMerchantId(), "aa",
-                buyRequest.getAmount(), 1, LocalDateTime.now()));
+                buyRequest.getAmount(), buyRequest.getMerchantOrderId(), LocalDateTime.now()));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
