@@ -1,4 +1,44 @@
-<p>Kodifikacija zakona</p>
-<p>100$</p>
-<a href="http://localhost:4200/home?param1=123">Kupi</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agencija za izdavanje zakona</title>
+</head>
+<body>
 
+<header>
+  <h1>Agencija za izdavanje zakona</h1>
+</header>
+
+<section>
+  <div class="service">
+    <h2>Kodifikacija zakona</h2>
+    <p>
+      Naša usluga kodifikacije zakona pruža efikasnu organizaciju i strukturiranje pravnih normi.
+      Specijalizovani tim pravnika osigurava transparentnost i jasnost u pravnom sistemu, olakšavajući pristup informacijama.
+      Kodifikacija zakona doprinosi efikasnijem sprovođenju pravde i stabilnosti pravnog sistema.
+    </p>
+    <p>Cena: $100</p>
+  </div>
+
+  <div class="service">
+    <h2>Izdavanje zakona u stampanoj formi</h2>
+    <p>
+      Pružamo uslugu izdavanja zakona u štampanoj formi. Naš tim stručnjaka garantuje kvalitetnu pripremu i štampanje zakona
+      uz poštovanje svih pravnih normi. Štampani dokumenti dostupni su u profesionalnom formatu, prilagođeni vašim potrebama.
+    </p>
+    <p>Cena: $150</p>
+  </div>
+  <div class="price">
+    <h2>Ukupna cena: {{ agencyAmount | currency }}</h2>
+    <button mat-button (click)="calculatePayment()">Kupi</button>
+  </div>
+</section>
+
+<footer>
+  <p>Kontaktirajte nas na agency@gmail.com</p>
+</footer>
+
+</body>
+</html>
