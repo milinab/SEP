@@ -1,9 +1,10 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { HomeComponent } from "./modules/pages/home/home.component";
+import {CardPaymentComponent} from "./modules/pages/cardPayment/card-payment.component";
 
 const routes: Routes = [
-  { path: 'home/:param1', component: HomeComponent }
+  { path: '', component: CardPaymentComponent }
 ];
 
 @NgModule({

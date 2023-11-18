@@ -9,13 +9,12 @@ import { ActivatedRoute } from '@angular/router';
 export class HomeComponent implements OnInit {
 
   price: string | null = "0"
+  displayedAmount: number = 0;
 
   constructor(private route: ActivatedRoute) { }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      this.price = params.get('param1');
-    });
+
   }
 
 }
