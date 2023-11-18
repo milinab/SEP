@@ -8,10 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -23,11 +20,14 @@ import java.time.LocalDateTime;
 @Entity(name = "transactions")
 @Table(name = "transactions")
 public class Transaction {
-
+    @Generated
     @Id
+    private Integer paymentId;
     private Integer merchantOrderId;
     private String merchantId;
     private double amount;
     private LocalDateTime merchantTimeStamp;
-    private Integer paymentId;
+
+    public Transaction(Integer merchantOrderId, String merchantId, Double amount, LocalDateTime merchantTimeStamp) {
+    }
 }

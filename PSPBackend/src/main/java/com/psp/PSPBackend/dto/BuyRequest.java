@@ -1,5 +1,6 @@
 package com.psp.PSPBackend.dto;
 
+import com.psp.PSPBackend.enums.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,5 +13,6 @@ import lombok.Setter;
 public class BuyRequest {
     private String merchantId;
     private Double amount;
-    // i jos preko cega ide placanje za sad samo kartica
+    private Integer merchantOrderId;
+    private PaymentType paymentType;
 }

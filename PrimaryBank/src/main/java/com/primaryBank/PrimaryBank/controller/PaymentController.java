@@ -1,10 +1,7 @@
 package com.primaryBank.PrimaryBank.controller;
 
-import com.primaryBank.PrimaryBank.dto.AuthRequest;
-import com.primaryBank.PrimaryBank.dto.AuthResponse;
-import com.primaryBank.PrimaryBank.dto.PaymentRequest;
-import com.primaryBank.PrimaryBank.dto.PccRequest;
-import com.primaryBank.PrimaryBank.dto.PccResponse;
+import com.primaryBank.PrimaryBank.dto.*;
+import com.primaryBank.PrimaryBank.enums.PaymentStatus;
 import com.primaryBank.PrimaryBank.service.PaymentService;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +25,9 @@ public class PaymentController {
     private PaymentService paymentService;
     @PostMapping(path = "/auth")
     public AuthResponse auth(@RequestBody AuthRequest authRequest) {
-        if(paymentService.clientExists(authRequest)){
-            // morace i payment id da se vrati iz servisa
-            AuthResponse response = new AuthResponse(0, "succes", authRequest.getAmount());
+        Integer paymentId = paymentService.clientExists(authRequest);
+        if(paymentId != null){
+            AuthResponse response = new AuthResponse(paymentId, "succes", authRequest.getAmount());
             return response;
         }else {
             return null;
@@ -38,13 +35,13 @@ public class PaymentController {
     }
 
     @PostMapping(path = "/pay")
-    public PccResponse pay(@RequestBody PaymentRequest paymentRequest) {
+    public PaymentResponse pay(@RequestBody PaymentRequest paymentRequest) {
         PccResponse response = paymentService.checkIssuerBank(paymentRequest);
-        return response;
+        return new PaymentResponse( 123, response.getAcquirerOrderId(), response.getAcquirerTimestamp(), PaymentStatus.SUCCESS);
     } // izmeniti ovaj response
 
     @PostMapping("/issuerPayment")
     public PccResponse issuerBankPayment(@RequestBody PccRequest authRequest){
-        return new PccResponse("success");
+        return new PccResponse();
     }
 }

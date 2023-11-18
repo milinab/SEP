@@ -30,16 +30,15 @@ public class PaymentService {
     @Value("${bank.code}")
     private String bankCode;
 
-    public boolean clientExists(AuthRequest authRequest){
+    public Integer clientExists(AuthRequest authRequest){
         Client client = clientRepository.findClientByMerchantId(authRequest.getMerchantId());
         if(client != null && client.getMerchantPassword().equals(authRequest.getMerchantPassword())){
-            // sta je id transakcije
             Transaction transaction = new Transaction(authRequest.getMerchantOrderId(), authRequest.getMerchantId(),
-                    authRequest.getAmount(), authRequest.getMerchantTimeStamp(), 0); // Kako generisati ovaj id???
-            transactionRepository.save(transaction);
-            return true;
+                    authRequest.getAmount(), authRequest.getMerchantTimeStamp());
+            transaction = transactionRepository.save(transaction);
+            return transaction.getPaymentId();
         }else {
-            return false;
+            return null;
         }
     }
 
@@ -47,12 +46,12 @@ public class PaymentService {
         if(paymentRequest.getPan().substring(4, 8).equals(bankCode)) {
             this.executePayment(); //implementirati skidanje sa racuna kupca i dodavanje na racun prodavca
         } else {
-            PccResponse response = pccClient.sendToIssuerBank(new PccRequest(paymentRequest.getPaymentId(), paymentRequest.getPan(),
+            PccResponse response = pccClient.sendToIssuerBank(new PccRequest(paymentRequest.getPan(),
                     paymentRequest.getExpDate(), paymentRequest.getCvv(), paymentRequest.getCardHolderName(),
-                    123, LocalDateTime.now())); // izgenrisati acquierer order id
+                    paymentRequest.getPaymentId(), LocalDateTime.now()));
             return response;
         }
-        return new PccResponse("error");// skontati sta vratiti
+        return new PccResponse();// skontati sta vratiti
     }
 
     private void executePayment(){}
