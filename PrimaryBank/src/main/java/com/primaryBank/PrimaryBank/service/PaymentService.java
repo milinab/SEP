@@ -33,6 +33,7 @@ public class PaymentService {
     public boolean clientExists(AuthRequest authRequest){
         Client client = clientRepository.findClientByMerchantId(authRequest.getMerchantId());
         if(client != null && client.getMerchantPassword().equals(authRequest.getMerchantPassword())){
+            // sta je id transakcije
             Transaction transaction = new Transaction(authRequest.getMerchantOrderId(), authRequest.getMerchantId(),
                     authRequest.getAmount(), authRequest.getMerchantTimeStamp(), 0); // Kako generisati ovaj id???
             transactionRepository.save(transaction);
@@ -48,7 +49,7 @@ public class PaymentService {
         } else {
             PccResponse response = pccClient.sendToIssuerBank(new PccRequest(paymentRequest.getPaymentId(), paymentRequest.getPan(),
                     paymentRequest.getExpDate(), paymentRequest.getCvv(), paymentRequest.getCardHolderName(),
-                    123, LocalDateTime.now()));
+                    123, LocalDateTime.now())); // izgenrisati acquierer order id
             return response;
         }
         return new PccResponse("error");// skontati sta vratiti

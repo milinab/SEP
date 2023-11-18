@@ -29,6 +29,7 @@ public class PaymentController {
     @PostMapping(path = "/auth")
     public AuthResponse auth(@RequestBody AuthRequest authRequest) {
         if(paymentService.clientExists(authRequest)){
+            // morace i payment id da se vrati iz servisa
             AuthResponse response = new AuthResponse(0, "succes", authRequest.getAmount());
             return response;
         }else {

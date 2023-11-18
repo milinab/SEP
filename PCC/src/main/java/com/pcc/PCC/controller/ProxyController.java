@@ -19,7 +19,8 @@ public class ProxyController {
     private PrimaryBankClient primaryBankClient;
     @PostExchange("/sendToIssuerBank")
     public PccResponse sendToIssuerBank(@RequestBody PccRequest pccRequest) {
-        return new PccResponse("success");
-        //return primaryBankClient.issuerBankPayment(pccRequest);
+        //return new PccResponse("success");
+        //napraviti proveru koji je broj kartice i onda kao na osnovu toga gadjati odredjenu banku kupca
+        return primaryBankClient.issuerBankPayment(pccRequest);
     }
 }
