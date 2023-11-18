@@ -2,6 +2,9 @@ package com.primaryBank.PrimaryBank.controller;
 
 import com.primaryBank.PrimaryBank.dto.AuthRequest;
 import com.primaryBank.PrimaryBank.dto.AuthResponse;
+import com.primaryBank.PrimaryBank.dto.PaymentRequest;
+import com.primaryBank.PrimaryBank.dto.PccRequest;
+import com.primaryBank.PrimaryBank.dto.PccResponse;
 import com.primaryBank.PrimaryBank.service.PaymentService;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.service.annotation.PostExchange;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -25,13 +29,22 @@ public class PaymentController {
     @PostMapping(path = "/auth")
     public AuthResponse auth(@RequestBody AuthRequest authRequest) {
         if(paymentService.clientExists(authRequest)){
+            // morace i payment id da se vrati iz servisa
             AuthResponse response = new AuthResponse(0, "succes", authRequest.getAmount());
-            System.out.println(response.getPaymentId());
-            System.out.println(response.getPaymentURL());
-            System.out.println(response.getAmount());
             return response;
         }else {
             return null;
         }
+    }
+
+    @PostMapping(path = "/pay")
+    public PccResponse pay(@RequestBody PaymentRequest paymentRequest) {
+        PccResponse response = paymentService.checkIssuerBank(paymentRequest);
+        return response;
+    } // izmeniti ovaj response
+
+    @PostMapping("/issuerPayment")
+    public PccResponse issuerBankPayment(@RequestBody PccRequest authRequest){
+        return new PccResponse("success");
     }
 }

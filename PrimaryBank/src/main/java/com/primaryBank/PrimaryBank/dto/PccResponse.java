@@ -9,11 +9,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class PaymentRequest {
-
-    private Integer paymentId;
-    private String pan;
-    private String expDate;
-    private String cvv;
-    private String cardHolderName;
+public class PccResponse {
+    private String message;
 }
