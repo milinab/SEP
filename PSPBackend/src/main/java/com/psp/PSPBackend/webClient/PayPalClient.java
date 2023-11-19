@@ -7,11 +7,7 @@ import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 
 @HttpExchange
-public interface PrimaryBankClient {
-
+public interface PayPalClient {
     @PostExchange("/api/payment/auth")
     public AuthResponse auth(@RequestBody AuthRequest authRequest);
-
-    @PostExchange("/api/payment/QRPay")
-    public AuthResponse QRPay(@RequestBody AuthRequest authRequest);
 }
