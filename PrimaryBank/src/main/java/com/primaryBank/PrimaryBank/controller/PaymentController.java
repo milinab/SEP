@@ -45,4 +45,10 @@ public class PaymentController {
     public PccResponse issuerBankPayment(@RequestBody PccRequest pccRequest){
         return paymentService.issuerBankPayment(pccRequest);
     }
+
+    @PostMapping(path = "/QRPay")
+    public AuthResponse QRPay(@RequestBody AuthRequest authRequest) {
+        return new AuthResponse(-1, "success QR", 0.0);
+    }
+
 }

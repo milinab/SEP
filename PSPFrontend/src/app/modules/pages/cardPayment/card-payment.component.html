@@ -3,31 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Forma za plaćanje</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha256-...." crossorigin="anonymous" />
+  <title>Payment Form</title>
 </head>
 <body>
 
-<form>
-  <label for="cardHolderName">Ime vlasnika kartice:</label>
-  <input type="text" id="cardHolderName" name="cardHolderName" placeholder="Unesite ime vlasnika kartice" required>
+<form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+  <div class="column1">
+    <div class="form-group">
+      <label for="cardHolderName">Cardholder's Name<span>*</span>:</label>
+      <input type="text" id="cardHolderName" formControlName="cardHolderName" placeholder="Enter cardholder's name"
+             [ngClass]="{ 'is-invalid': submitted && paymentForm.get('cardHolderName')?.errors }" required>
+      <div *ngIf="submitted && paymentForm.get('cardHolderName')?.errors" class="invalid-feedback">
+        Please enter the cardholder's name.
+      </div>
+    </div>
 
-  <label for="cardNumber">Broj kartice:</label>
-  <input type="text" id="cardNumber" name="cardNumber" placeholder="Unesite broj kartice" required>
+    <div class="form-group">
+      <label for="cardNumber">Card Number<span>*</span>:</label>
+      <input type="text" id="cardNumber" formControlName="cardNumber" placeholder="Enter card number"
+             [ngClass]="{ 'is-invalid': submitted && paymentForm.get('cardNumber')?.errors }" required>
+      <div *ngIf="submitted && paymentForm.get('cardNumber')?.errors" class="invalid-feedback">
+        Please enter a valid 16-digit card number.
+      </div>
+    </div>
 
-  <label for="expiryDate">Datum isteka:</label>
-  <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" required>
+    <div class="form-group">
+      <label for="expiryDate">Expiration Date<span>*</span>:</label>
+      <input type="text" id="expiryDate" formControlName="expiryDate" placeholder="MM/YY"
+             [ngClass]="{ 'is-invalid': submitted && paymentForm.get('expiryDate')?.errors }" required>
+      <div *ngIf="submitted && paymentForm.get('expiryDate')?.errors" class="invalid-feedback">
+        Please enter a valid MM/YY expiration date.
+      </div>
+    </div>
 
-  <label for="cvv">CVV:</label>
-  <input type="text" id="cvv" name="cvv" placeholder="CVV" required>
+    <div class="form-group">
+      <label for="cvv">CVV<span>*</span>:</label>
+      <input type="text" id="cvv" formControlName="cvv" placeholder="CVV"
+             [ngClass]="{ 'is-invalid': submitted && paymentForm.get('cvv')?.errors }" required>
+      <div *ngIf="submitted && paymentForm.get('cvv')?.errors" class="invalid-feedback">
+        Please enter a valid 3-digit CVV.
+      </div>
+    </div>
+  </div>
 
-  <button type="button" onclick="submitForm()">Plati</button>
+  <div class="column2">
+    <div class="images">
+      <img class="master" src="assets/masterCard.png" alt="f">
+      <img class="visa" src="assets/visa.png" alt="f">
+      <img class="amEx" src="assets/americanExpress.png" alt="f">
+    </div>
+    <button type="submit">
+      <i class="fa-solid fa-credit-card fa-lg"></i>
+      Confirm & Pay Your Order {{ displayedAmount | currency }}
+    </button>
+  </div>
+
 </form>
-
-<script>
-  function submitForm() {
-    alert("Ovde biste izvršili stvarnu transakciju. Ovo je samo obrazovni primer.");
-  }
-</script>
 
 </body>
 </html>

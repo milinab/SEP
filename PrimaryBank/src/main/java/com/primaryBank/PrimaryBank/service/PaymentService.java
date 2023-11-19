@@ -71,9 +71,7 @@ public class PaymentService {
             PccResponse response = pccClient.sendToIssuerBank(new PccRequest(paymentRequest.getPan(),
                     paymentRequest.getExpDate(), paymentRequest.getCvv(), paymentRequest.getCardHolderName(),
                     paymentRequest.getPaymentId(), LocalDateTime.now(), transaction.getAmount()));
-            System.out.println("pcc response");
-            System.out.println(response.getAcquirerOrderId());
-            System.out.println(response.getPaymentStatus());
+
             if(response.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
                 Client client = clientRepository.findClientByMerchantId(transaction.getMerchantId());
                 client.setAvailableSum(client.getAvailableSum() + transaction.getAmount());

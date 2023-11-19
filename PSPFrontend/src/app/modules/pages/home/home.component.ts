@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -11,10 +11,13 @@ export class HomeComponent implements OnInit {
   price: string | null = "0"
   displayedAmount: number = 0;
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
 
   }
 
+  cardPayment() {
+    this.router.navigate(['/card-payment']);
+  }
 }
