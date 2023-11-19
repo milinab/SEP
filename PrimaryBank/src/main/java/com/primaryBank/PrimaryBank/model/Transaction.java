@@ -1,5 +1,6 @@
 package com.primaryBank.PrimaryBank.model;
 
+import com.primaryBank.PrimaryBank.enums.PaymentStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -20,13 +21,15 @@ import java.time.LocalDateTime;
 @Entity(name = "transactions")
 @Table(name = "transactions")
 public class Transaction {
-    @Generated
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer paymentId;
     private Integer merchantOrderId;
     private String merchantId;
     private double amount;
     private LocalDateTime merchantTimeStamp;
+    private PaymentStatus paymentStatus;
 
     public Transaction(Integer merchantOrderId, String merchantId, Double amount, LocalDateTime merchantTimeStamp) {
     }

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.service.annotation.PostExchange;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api/payment")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -36,12 +38,11 @@ public class PaymentController {
 
     @PostMapping(path = "/pay")
     public PaymentResponse pay(@RequestBody PaymentRequest paymentRequest) {
-        PccResponse response = paymentService.checkIssuerBank(paymentRequest);
-        return new PaymentResponse( 123, response.getAcquirerOrderId(), response.getAcquirerTimestamp(), PaymentStatus.SUCCESS);
-    } // izmeniti ovaj response
+        return paymentService.checkIssuerBank(paymentRequest);
+    }
 
     @PostMapping("/issuerPayment")
-    public PccResponse issuerBankPayment(@RequestBody PccRequest authRequest){
-        return new PccResponse();
+    public PccResponse issuerBankPayment(@RequestBody PccRequest pccRequest){
+        return paymentService.issuerBankPayment(pccRequest);
     }
 }

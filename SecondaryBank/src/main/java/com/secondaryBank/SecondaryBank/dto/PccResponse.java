@@ -1,6 +1,6 @@
-package com.pcc.PCC.dto;
+package com.secondaryBank.SecondaryBank.dto;
 
-import com.pcc.PCC.enums.PaymentStatus;
+import com.secondaryBank.SecondaryBank.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

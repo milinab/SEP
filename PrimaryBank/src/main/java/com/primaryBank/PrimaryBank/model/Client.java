@@ -19,7 +19,8 @@ public class Client {
     private String merchantId;
     private String merchantPassword;
     private double availableSum;
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "card_id")
-    private Card card;
+    private String pan;
+    private String expDate;
+    private String cvv;
+    private String cardHolderName;
 }
