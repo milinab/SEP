@@ -2,10 +2,12 @@ package com.pcc.PCC.webConfig;
 
 import com.pcc.PCC.webClient.PrimaryBankClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@Configuration
 public class WebClientConfig {
 
     @Bean

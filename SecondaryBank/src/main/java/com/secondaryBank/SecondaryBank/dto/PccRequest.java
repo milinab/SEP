@@ -1,4 +1,4 @@
-package com.primaryBank.PrimaryBank.dto;
+package com.secondaryBank.SecondaryBank.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,5 +18,4 @@ public class PccRequest {
     private String cardHolderName;
     private Integer acquiererOrderId;
     private LocalDateTime acquiererTimestamp;
-    private Double amount;
 }

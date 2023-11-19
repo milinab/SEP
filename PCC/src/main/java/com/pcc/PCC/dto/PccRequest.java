@@ -18,4 +18,5 @@ public class PccRequest {
     private String cardHolderName;
     private Integer acquiererOrderId;
     private LocalDateTime acquiererTimestamp;
+    private Double amount;
 }
