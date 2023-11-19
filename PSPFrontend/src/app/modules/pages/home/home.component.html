@@ -1,3 +1,48 @@
-<p>home works!</p>
-<p>Cena: {{price}}</p>
-<p>Displayed Amount: {{ displayedAmount | currency }}</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha256-...." crossorigin="anonymous" />
+  <title>Payment service provider</title>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>Payment Service</h1>
+  </div>
+</header>
+
+<div class="container">
+  <h2>Choose your payment option</h2>
+
+  <div class="payment-options">
+    <div class="payment-option" (click)="cardPayment()">
+      <i class="fa-solid fa-credit-card fa-xl"></i>
+      <p>Payment via Credit Card</p>
+    </div>
+
+    <div class="payment-option" onclick="redirectToService('qr-code.html')">
+      <i class="fa-solid fa-qrcode fa-xl"></i>
+      <p>Payment via QR Code</p>
+    </div>
+
+    <div class="payment-option" onclick="redirectToService('paypal.html')">
+      <i class="fa-brands fa-cc-paypal fa-xl"></i>
+      <p>Payment via PayPal</p>
+    </div>
+
+    <div class="payment-option" onclick="">
+      <i class="fa-brands fa-bitcoin fa-xl"></i>
+      <p>Payment via Bitcoin</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Contact us at psp@gmail.com</p>
+</footer>
+
+</body>
+</html>
