@@ -7,6 +7,7 @@ import com.psp.PSPBackend.model.Client;
 import com.psp.PSPBackend.service.ClientService;
 import com.psp.PSPBackend.webClient.PrimaryBankClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,7 +21,7 @@ import java.util.Date;
 
 @RestController
 @RequestMapping("/api/payment")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:4201"})
 public class PaymentController {
 
     @Autowired
@@ -44,6 +45,22 @@ public class PaymentController {
         } else {
             return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount()),
                     HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/calculateAmount")
+    public ResponseEntity<String> calculateAmount(@RequestBody Double agencyAmount) {
+        if (agencyAmount != null) {
+
+            String pspFE = "http://localhost:4200";
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", pspFE);
+
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+            //return ResponseEntity.ok(agencyAmount);
+
+        } else {
+            return ResponseEntity.badRequest().build();
         }
     }
 }
