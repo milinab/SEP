@@ -1,5 +1,7 @@
 package com.psp.PSPBackend.config;
 
+import com.psp.PSPBackend.webClient.CryptoClient;
+import com.psp.PSPBackend.webClient.PayPalClient;
 import com.psp.PSPBackend.webClient.PrimaryBankClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,5 +26,37 @@ public class WebClientConfig {
                 .builder(WebClientAdapter.forClient(primaryBankWebClient()))
                 .build();
         return httpServiceProxyFactory.createClient(PrimaryBankClient.class);
+    }
+
+    @Bean
+    public WebClient paypalWebClient() {
+        return WebClient.builder()
+                .baseUrl("http://localhost:8084")
+                .build();
+    }
+
+    @Bean
+    public PayPalClient paypalClient() {
+        HttpServiceProxyFactory httpServiceProxyFactory
+                = HttpServiceProxyFactory
+                .builder(WebClientAdapter.forClient(paypalWebClient()))
+                .build();
+        return httpServiceProxyFactory.createClient(PayPalClient.class);
+    }
+
+    @Bean
+    public WebClient cryptoWebClient() {
+        return WebClient.builder()
+                .baseUrl("http://localhost:8085")
+                .build();
+    }
+
+    @Bean
+    public CryptoClient cryptoClient() {
+        HttpServiceProxyFactory httpServiceProxyFactory
+                = HttpServiceProxyFactory
+                .builder(WebClientAdapter.forClient(cryptoWebClient()))
+                .build();
+        return httpServiceProxyFactory.createClient(CryptoClient.class);
     }
 }
