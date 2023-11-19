@@ -3,6 +3,8 @@ package com.psp.PSPBackend.controller;
 import com.psp.PSPBackend.dto.AuthRequest;
 import com.psp.PSPBackend.dto.AuthResponse;
 import com.psp.PSPBackend.dto.BuyRequest;
+import com.psp.PSPBackend.model.Client;
+import com.psp.PSPBackend.service.ClientService;
 import com.psp.PSPBackend.webClient.PrimaryBankClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,12 +26,26 @@ public class PaymentController {
 
     @Autowired
     private PrimaryBankClient primaryBankClient;
+
+    @Autowired
+    private ClientService clientService;
     @PostMapping(path = "/buy")
     public ResponseEntity<AuthResponse> buy(@RequestBody BuyRequest buyRequest) {
-        // dohvatiti iz baze password na osnovu id-a i izgenerisati merchant order id
-        AuthResponse response = primaryBankClient.auth(new AuthRequest(buyRequest.getMerchantId(), "aa",
-                buyRequest.getAmount(), buyRequest.getMerchantOrderId(), LocalDateTime.now()));
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        // izgenerisati merchant order id
+        Client client = clientService.findClientByMerchantId(buyRequest.getMerchantId());
+        if(client != null) {
+            AuthResponse response = primaryBankClient.auth(new AuthRequest(buyRequest.getMerchantId(), "aa",
+                    buyRequest.getAmount(), buyRequest.getMerchantOrderId(), LocalDateTime.now()));
+            if(response != null) {
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount()),
+                        HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount()),
+                    HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping("/calculateAmount")
