@@ -1,12 +1,7 @@
 package com.primaryBank.PrimaryBank.service;
 
-import com.primaryBank.PrimaryBank.dto.AuthRequest;
-import com.primaryBank.PrimaryBank.dto.PaymentRequest;
-import com.primaryBank.PrimaryBank.dto.PaymentResponse;
-import com.primaryBank.PrimaryBank.dto.PccRequest;
-import com.primaryBank.PrimaryBank.dto.PccResponse;
+import com.primaryBank.PrimaryBank.dto.*;
 import com.primaryBank.PrimaryBank.enums.PaymentStatus;
-import com.primaryBank.PrimaryBank.model.Card;
 import com.primaryBank.PrimaryBank.model.Client;
 import com.primaryBank.PrimaryBank.model.Transaction;
 import com.primaryBank.PrimaryBank.repository.CardRepository;
@@ -19,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.Optional;
 
 @Service
 public class PaymentService {
@@ -52,8 +48,24 @@ public class PaymentService {
 
     public PaymentResponse checkIssuerBank(PaymentRequest paymentRequest) {
         if(paymentRequest.getPan().substring(4, 8).equals(bankCode)) {
-            this.executePayment(); //implementirati skidanje sa racuna kupca i dodavanje na racun prodavca
-            return new PaymentResponse();// skontati sta vratiti
+            Transaction transaction = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
+
+            //  this.executePayment(); //implementirati skidanje sa racuna kupca i dodavanje na racun prodavca
+            boolean creditIsValid = isCreditCardValid(paymentRequest);
+            if (!creditIsValid) {
+                return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
+                        LocalDateTime.now(), PaymentStatus.FAILED);
+            }
+
+            if (transaction.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
+                return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
+                        LocalDateTime.now(), PaymentStatus.SUCCESS);
+            } else {
+                return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
+                        LocalDateTime.now(), PaymentStatus.FAILED);
+            }
+
+//            return new PaymentResponse();// skontati sta vratiti
         } else {
             Transaction transaction = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
             PccResponse response = pccClient.sendToIssuerBank(new PccRequest(paymentRequest.getPan(),
@@ -78,6 +90,58 @@ public class PaymentService {
     }
 
     private void executePayment(){}
+
+    public boolean isCreditCardValid(PaymentRequest paymentRequest) {
+        Optional<Client> optionalClient = clientRepository.searchClientByPan(paymentRequest.getPan());
+        Transaction transaction = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
+
+
+        if (!optionalClient.isPresent()) {
+            return false;
+        }
+            Client client = optionalClient.get();
+
+        if (!paymentRequest.getCardHolderName().equals(client.getCardHolderName()) ||
+                !paymentRequest.getPan().equals(client.getPan()) ||
+                !paymentRequest.getCvv().equals(client.getCvv()) ||
+                !isCreditCardDateValid(client.getExpDate())){
+
+            return false;
+        }
+
+        if (client.getAvailableSum() < transaction.getAmount()) {
+            return false;
+        }
+
+        double newSum = client.getAvailableSum() - transaction.getAmount();
+        client.setAvailableSum(newSum);
+        updateMerchantAccount(transaction);
+
+        Transaction transaction1 = new Transaction(-1, transaction.getMerchantOrderId(), client.getMerchantId(),
+                transaction.getAmount(), transaction.getMerchantTimeStamp(), PaymentStatus.SUCCESS);
+
+        transactionRepository.save(transaction1);
+
+
+        return true;
+    }
+
+    private void updateMerchantAccount(Transaction transaction) {
+        Client client = clientRepository.findClientByMerchantId(transaction.getMerchantId());
+        client.setAvailableSum(client.getAvailableSum() + transaction.getAmount());
+        clientRepository.save(client);
+        transaction.setPaymentStatus(PaymentStatus.SUCCESS);
+        transactionRepository.save(transaction);
+    }
+
+    private boolean isCreditCardDateValid(String expDate) {
+        String[] parts = expDate.split("/");
+        YearMonth yearMonth = YearMonth.of(Integer.parseInt(parts[1]), Integer.parseInt(parts[0]));
+        int endDay = yearMonth.lengthOfMonth();
+        LocalDateTime expDateTime = LocalDateTime.of(2000 + Integer.parseInt(parts[1]), Integer.parseInt(parts[0]), endDay,
+                23, 59, 59);
+        return expDateTime.isAfter(LocalDateTime.now());
+    }
 
     public PccResponse issuerBankPayment(PccRequest pccRequest) {
         Client client = clientRepository.findClientByPan(pccRequest.getPan());
