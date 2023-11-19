@@ -34,7 +34,7 @@ public class PaymentController {
         // izgenerisati merchant order id
         Client client = clientService.findClientByMerchantId(buyRequest.getMerchantId());
         if(client != null) {
-            AuthResponse response = primaryBankClient.auth(new AuthRequest(buyRequest.getMerchantId(), "aa",
+            AuthResponse response = primaryBankClient.auth(new AuthRequest(buyRequest.getMerchantId(), client.getMerchantPassword(),
                     buyRequest.getAmount(), buyRequest.getMerchantOrderId(), LocalDateTime.now()));
             if(response != null) {
                 return new ResponseEntity<>(response, HttpStatus.OK);
