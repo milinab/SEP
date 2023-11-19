@@ -15,7 +15,10 @@ form {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  width: 500px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
 }
 
 label {
@@ -31,14 +34,54 @@ input {
 }
 
 button {
-  background-color: #007BFF;
+  background-color: #d75e1d;
   color: #fff;
   padding: 10px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  align-self: center;
+  margin-left: 15px;
+  margin-top: 10px;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #703e10;
 }
+
+span {
+  color: red;
+}
+
+.is-invalid {
+  border: 1px solid #dc3545;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 80%;
+  margin-top: 4px;
+}
+
+.images {
+  padding-top: 18px;
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.master {
+  width: 110px;
+  margin-left: 18px;
+}
+
+.visa {
+  width: 100px;
+  margin-left: 22px;
+  margin-top: 16px;
+}
+
+.amEx {
+  width: 148px;
+}
+
