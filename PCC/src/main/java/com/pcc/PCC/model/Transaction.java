@@ -1,6 +1,6 @@
-package com.psp.PSPBackend.model;
+package com.pcc.PCC.model;
 
-import com.psp.PSPBackend.enums.PaymentStatus;
+import com.pcc.PCC.enums.PaymentStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -20,9 +20,9 @@ import java.time.LocalDateTime;
 public class Transaction {
 
     @Id
-    private Integer merchantOrderId;
-    private String merchantId;
-    private Double amount;
-    private LocalDateTime merchantTimeStamp;
+    private Integer acquirerOrderId;
+    private LocalDateTime acquirerTimestamp;
+    private Integer issuerOrderId;
+    private LocalDateTime issuerTimestamp;
     private PaymentStatus paymentStatus;
 }
