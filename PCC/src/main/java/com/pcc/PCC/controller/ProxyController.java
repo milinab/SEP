@@ -32,21 +32,26 @@ public class ProxyController {
     private String bankCode;
     @PostMapping("/sendToIssuerBank")
     public PccResponse sendToIssuerBank(@RequestBody PccRequest pccRequest) {
-        if(pccRequest.getPan().substring(4, 8).equals(bankCode)) {
-            Transaction transaction = new Transaction(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
-                    null, null, null);
-            transactionRepository.save(transaction);
+        try {
+            if(pccRequest.getPan().substring(4, 8).equals(bankCode)) {
+                Transaction transaction = new Transaction(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
+                        null, null, null);
+                transactionRepository.save(transaction);
 
-            PccResponse response = primaryBankClient.issuerBankPayment(pccRequest);
+                PccResponse response = primaryBankClient.issuerBankPayment(pccRequest);
 
-            transaction.setIssuerOrderId(response.getIssuerOrderId());
-            transaction.setIssuerTimestamp(response.getIssuerTimestamp());
-            transaction.setPaymentStatus(response.getPaymentStatus());
-            transactionRepository.save(transaction);
+                transaction.setIssuerOrderId(response.getIssuerOrderId());
+                transaction.setIssuerTimestamp(response.getIssuerTimestamp());
+                transaction.setPaymentStatus(response.getPaymentStatus());
+                transactionRepository.save(transaction);
 
-            return response;
-        } else {
-            return new PccResponse(-1, pccRequest.getAcquiererTimestamp(), -1, null,
+                return response;
+            } else {
+                return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(), -1, null,
+                        PaymentStatus.ERROR);
+            }
+        } catch (NullPointerException e) {
+            return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(), -1, null,
                     PaymentStatus.ERROR);
         }
     }
