@@ -29,7 +29,7 @@ public class PaymentController {
     public AuthResponse auth(@RequestBody AuthRequest authRequest) {
         Integer paymentId = paymentService.clientExists(authRequest);
         if(paymentId != null){
-            AuthResponse response = new AuthResponse(paymentId, "succes", authRequest.getAmount());
+            AuthResponse response = new AuthResponse(paymentId, "success", authRequest.getAmount());
             return response;
         }else {
             return null;
