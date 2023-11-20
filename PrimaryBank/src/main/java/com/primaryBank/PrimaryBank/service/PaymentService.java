@@ -38,7 +38,7 @@ public class PaymentService {
         Client client = clientRepository.findClientByMerchantId(authRequest.getMerchantId());
         if(client != null && client.getMerchantPassword().equals(authRequest.getMerchantPassword())){
             Transaction transaction = new Transaction(-1, authRequest.getMerchantOrderId(), authRequest.getMerchantId(),
-                    authRequest.getAmount(), authRequest.getMerchantTimeStamp(), PaymentStatus.FAILED);
+                    authRequest.getAmount(), authRequest.getMerchantTimeStamp(), null, null, null);
             transaction = transactionRepository.save(transaction);
             return transaction.getPaymentId();
         }else {
@@ -53,24 +53,31 @@ public class PaymentService {
             //  this.executePayment(); //implementirati skidanje sa racuna kupca i dodavanje na racun prodavca
             boolean creditIsValid = isCreditCardValid(paymentRequest);
             if (!creditIsValid) {
+                transaction.setAcquiererTimestamp(LocalDateTime.now());
+                transaction.setIssuerTimestamp(LocalDateTime.now());
+                transaction.setPaymentStatus(PaymentStatus.FAILED);
                 return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
-                        LocalDateTime.now(), PaymentStatus.FAILED);
+                        transaction.getAcquiererTimestamp(), PaymentStatus.FAILED);
             }
 
-            if (transaction.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
+            Transaction transaction1 = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
+            if (transaction1.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
                 return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
                         LocalDateTime.now(), PaymentStatus.SUCCESS);
             } else {
                 return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
-                        LocalDateTime.now(), PaymentStatus.FAILED);
+                        LocalDateTime.now(), PaymentStatus.ERROR);
             }
 
 //            return new PaymentResponse();// skontati sta vratiti
         } else {
             Transaction transaction = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
+            transaction.setAcquiererTimestamp(LocalDateTime.now());
+            transactionRepository.save(transaction);
+
             PccResponse response = pccClient.sendToIssuerBank(new PccRequest(paymentRequest.getPan(),
                     paymentRequest.getExpDate(), paymentRequest.getCvv(), paymentRequest.getCardHolderName(),
-                    paymentRequest.getPaymentId(), LocalDateTime.now(), transaction.getAmount()));
+                    paymentRequest.getPaymentId(), transaction.getAcquiererTimestamp(), transaction.getAmount()));
 
             if(response.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
                 Client client = clientRepository.findClientByMerchantId(transaction.getMerchantId());
@@ -78,18 +85,20 @@ public class PaymentService {
                 clientRepository.save(client);
 
                 transaction.setPaymentStatus(PaymentStatus.SUCCESS);
+                transaction.setIssuerTimestamp(response.getIssuerTimestamp());
                 transactionRepository.save(transaction);
 
                 return new PaymentResponse(transaction.getMerchantOrderId(), response.getAcquirerOrderId(),
                         response.getAcquirerTimestamp(), PaymentStatus.SUCCESS);
             } else {
+                transaction.setIssuerTimestamp(response.getIssuerTimestamp());
+                transaction.setPaymentStatus(response.getPaymentStatus());
+                transactionRepository.save(transaction);
                 return new PaymentResponse(transaction.getMerchantOrderId(), response.getAcquirerOrderId(),
                         response.getAcquirerTimestamp(), response.getPaymentStatus());
             }
         }
     }
-
-    private void executePayment(){}
 
     public boolean isCreditCardValid(PaymentRequest paymentRequest) {
         Optional<Client> optionalClient = clientRepository.searchClientByPan(paymentRequest.getPan());
@@ -115,10 +124,12 @@ public class PaymentService {
 
         double newSum = client.getAvailableSum() - transaction.getAmount();
         client.setAvailableSum(newSum);
+        clientRepository.save(client);
         updateMerchantAccount(transaction);
 
         Transaction transaction1 = new Transaction(-1, transaction.getMerchantOrderId(), client.getMerchantId(),
-                transaction.getAmount(), transaction.getMerchantTimeStamp(), PaymentStatus.SUCCESS);
+                transaction.getAmount(), transaction.getMerchantTimeStamp(), PaymentStatus.SUCCESS, LocalDateTime.now(),
+                LocalDateTime.now());
 
         transactionRepository.save(transaction1);
 
@@ -131,6 +142,8 @@ public class PaymentService {
         client.setAvailableSum(client.getAvailableSum() + transaction.getAmount());
         clientRepository.save(client);
         transaction.setPaymentStatus(PaymentStatus.SUCCESS);
+        transaction.setAcquiererTimestamp(LocalDateTime.now());
+        transaction.setIssuerTimestamp(LocalDateTime.now());
         transactionRepository.save(transaction);
     }
 
@@ -153,16 +166,18 @@ public class PaymentService {
                 23, 59, 59);
 
         if(client != null && client.getExpDate().equals(pccRequest.getExpDate()) && client.getCvv().equals(pccRequest.getCvv())
-                && expDate.isAfter(LocalDateTime.now()) && client.getAvailableSum() >= pccRequest.getAmount()){
+                && expDate.isAfter(LocalDateTime.now()) && client.getAvailableSum() >= pccRequest.getAmount()) {
+
             double newSum = client.getAvailableSum() - pccRequest.getAmount();
             client.setAvailableSum(newSum);
             Transaction transaction = new Transaction(-1, -1, client.getMerchantId(), pccRequest.getAmount(),
-                    null, PaymentStatus.SUCCESS); // sta sa mrcent order id
+                    null, PaymentStatus.SUCCESS, pccRequest.getAcquiererTimestamp(), LocalDateTime.now()); // sta sa mrcent order id
             Transaction newTransaction = transactionRepository.save(transaction);
             PccResponse pccResponse = new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
-                    newTransaction.getPaymentId(), LocalDateTime.now(), PaymentStatus.SUCCESS);
+                    newTransaction.getPaymentId(), transaction.getIssuerTimestamp(), PaymentStatus.SUCCESS);
             return pccResponse;
         } else {
+            //da li da kreiram failed transakciju
             return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
                     -1, LocalDateTime.now(), PaymentStatus.FAILED);
         }
