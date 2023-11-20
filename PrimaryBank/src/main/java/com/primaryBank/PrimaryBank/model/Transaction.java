@@ -30,6 +30,8 @@ public class Transaction {
     private double amount;
     private LocalDateTime merchantTimeStamp;
     private PaymentStatus paymentStatus;
+    private LocalDateTime acquiererTimestamp;
+    private LocalDateTime issuerTimestamp;
 
     public Transaction(Integer merchantOrderId, String merchantId, Double amount, LocalDateTime merchantTimeStamp) {
     }

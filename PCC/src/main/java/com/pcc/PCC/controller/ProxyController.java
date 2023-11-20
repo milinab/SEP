@@ -3,6 +3,8 @@ package com.pcc.PCC.controller;
 import com.pcc.PCC.dto.PccRequest;
 import com.pcc.PCC.dto.PccResponse;
 import com.pcc.PCC.enums.PaymentStatus;
+import com.pcc.PCC.model.Transaction;
+import com.pcc.PCC.repository.TransactionRepository;
 import com.pcc.PCC.webClient.PrimaryBankClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,18 +25,34 @@ public class ProxyController {
     @Autowired
     private PrimaryBankClient primaryBankClient;
 
+    @Autowired
+    private TransactionRepository transactionRepository;
+
     @Value("${bank.code}")
     private String bankCode;
     @PostMapping("/sendToIssuerBank")
     public PccResponse sendToIssuerBank(@RequestBody PccRequest pccRequest) {
-        if(pccRequest.getPan().substring(4, 8).equals(bankCode)) {
-            PccResponse response = primaryBankClient.issuerBankPayment(pccRequest);
-            System.out.println("pcc response");
-            System.out.println(response.getAcquirerOrderId());
-            System.out.println(response.getPaymentStatus());
-            return response;
-        } else {
-            return new PccResponse(-1, LocalDateTime.now(), -1, LocalDateTime.now(), PaymentStatus.FAILED);
+        try {
+            if(pccRequest.getPan().substring(4, 8).equals(bankCode)) {
+                Transaction transaction = new Transaction(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
+                        null, null, null);
+                transactionRepository.save(transaction);
+
+                PccResponse response = primaryBankClient.issuerBankPayment(pccRequest);
+
+                transaction.setIssuerOrderId(response.getIssuerOrderId());
+                transaction.setIssuerTimestamp(response.getIssuerTimestamp());
+                transaction.setPaymentStatus(response.getPaymentStatus());
+                transactionRepository.save(transaction);
+
+                return response;
+            } else {
+                return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(), -1, null,
+                        PaymentStatus.ERROR);
+            }
+        } catch (NullPointerException e) {
+            return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(), -1, null,
+                    PaymentStatus.ERROR);
         }
     }
 }
