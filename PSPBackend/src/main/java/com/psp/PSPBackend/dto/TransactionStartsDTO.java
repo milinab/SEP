@@ -1,6 +1,4 @@
 package com.psp.PSPBackend.dto;
-
-import com.psp.PSPBackend.enums.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,9 +8,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class BuyRequest {
+public class TransactionStartsDTO {
     private String merchantId;
     private Double amount;
-    private Long merchantOrderId;
-    private PaymentType paymentType;
+    private Integer merchantOrderId;
 }

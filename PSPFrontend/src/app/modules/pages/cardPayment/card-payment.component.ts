@@ -1,6 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, Params} from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {PaymentService} from "../../services/payment.service";
+import {Transaction} from "../../model/transaction.model";
+import {PaymentStatus} from "../../enums/paymentStatus.enum";
+import {PaymentResponse} from "../../dtos/paymentResponse";
 
 @Component({
   selector: 'app-home',
@@ -10,12 +14,33 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 export class CardPaymentComponent implements OnInit {
   paymentForm!: FormGroup;
   submitted = false;
-
-  constructor(private route: ActivatedRoute, private formBuilder: FormBuilder) { }
-
   displayedAmount: number = 748.56;
+  paymentId: number = 0;
+  public transaction: Transaction = new Transaction()
+  payResponse: PaymentResponse = {
+    merchantOrderId: 0,
+    acquirerOrderId: 0,
+    acquirerTimestamp: new Date(),
+    paymentStatus: ''
+  }
+
+  constructor(private route: ActivatedRoute,
+              private formBuilder: FormBuilder,
+              private paymentService: PaymentService) { }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      const myData = params['myData'];
+      if (myData) {
+        const data = JSON.parse(decodeURIComponent(myData));
+        console.log('Dohvaćeni podaci:', data);
+        this.paymentId = data.paymentId;
+      } else {
+        console.log('Podaci nisu pronađeni u query parametrima.');
+      }
+
+    });
+
     this.paymentForm = this.formBuilder.group({
       cardHolderName: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]*$/)]], //letters
       cardNumber: ['', [Validators.required, Validators.pattern(/^\d{16}$/)]], //16-digit
@@ -24,19 +49,36 @@ export class CardPaymentComponent implements OnInit {
     });
   }
 
-  get formControls() {
-    return this.paymentForm.controls;
-  }
-
   onSubmit() {
     this.submitted = true;
 
     if (this.paymentForm.valid) {
-      // Ovde možete izvršiti stvarnu transakciju
-      console.log('Forma je validna. Izvršite transakciju.');
-    } else {
-      // Ovde možete prikazati poruke o greškama ili dodatne radnje za nevalidnu formu
-      console.log('Forma nije validna. Proverite unos.');
+      // this.paymentService.validateCard(this.paymentForm.value).subscribe(
+      //   (response) => {
+      //
+      //     console.log('Form is valid.');
+      //   },
+      //   (error) => {
+      //     console.log('Form is not valid.');
+      //   }
+      // );
+      const formValue = this.paymentForm.value;
+      this.paymentService.pay({paymentId: this.paymentId,
+        pan: formValue.cardNumber,
+        expDate: formValue.expiryDate,
+        cvv: formValue.cvv,
+        cardHolderName: formValue.cardHolderName}).subscribe(
+        (response) => {
+          this.payResponse = response
+          if(this.payResponse.paymentStatus == "SUCCESS") {
+            alert("success")
+          } else if(this.payResponse.paymentStatus == "FAILED") {
+            alert("failed, no money")
+          } else {
+            alert("error")
+          }
+        }
+      )
     }
   }
 

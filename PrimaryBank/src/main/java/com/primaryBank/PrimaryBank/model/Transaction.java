@@ -25,7 +25,7 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer paymentId;
-    private Integer merchantOrderId;
+    private Long merchantOrderId;
     private String merchantId;
     private double amount;
     private LocalDateTime merchantTimeStamp;

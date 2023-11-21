@@ -1,16 +1,36 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {catchError, map, Observable, of, tap} from "rxjs";
+import {BuyRequest} from "../dtos/buyRequest";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PaymentService {
-  private apiUrl = 'http://localhost:8080/api/payment'; 
+  private pspBE = 'http://localhost:8080/api/payment/validateCard';
+  private psp = 'http://localhost:8080/';
+  private primaryBank = 'http://localhost:8081/';
+  headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
+
 
   constructor(private http: HttpClient) {}
 
-  calculateAmount(agencyAmount: number) {
-    console.log('Calculating and processing amount on Payment Service:', agencyAmount);
-    return agencyAmount;
+  validateCard(card: any): Observable<any> {
+    return this.http.post<any>(this.pspBE, card).pipe(
+      map(response => {
+        return response === true;
+      }),
+      catchError(() => {
+        return of(false);
+      })
+    );
+  }
+
+  payment(buyReq: any): Observable<any>  {
+    return this.http.post(this.psp + `api/payment/buy`, buyReq)
+  }
+
+  pay(transaction: any): Observable<any> {
+    return this.http.post(this.primaryBank + `api/payment/pay`, transaction)
   }
 }
