@@ -16,6 +16,6 @@ public class AuthRequest {
     private String merchantId;
     private String merchantPassword;
     private Double amount;
-    private Integer merchantOrderId;
+    private Long merchantOrderId;
     private LocalDateTime merchantTimeStamp;
 }

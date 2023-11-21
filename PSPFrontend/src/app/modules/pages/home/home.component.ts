@@ -16,8 +16,8 @@ export class HomeComponent implements OnInit {
   merchantId: string = '';
   merchantOrderId: number = 0;
   buyRequest: BuyRequest = {
-    amount: 0,
     merchantId: '',
+    amount: 0,
     merchantOrderId: 0,
     paymentType: PaymentType.CREDIT_CARD
   }
@@ -41,8 +41,8 @@ export class HomeComponent implements OnInit {
       if (myData) {
         const data = JSON.parse(decodeURIComponent(myData));
         console.log('Dohvaćeni podaci:', data);
-        this.amount = data.amount;
         this.merchantId = data.merchantId;
+        this.amount = data.amount;
         this.merchantOrderId = data.merchantOrderId;
       } else {
         console.log('Podaci nisu pronađeni u query parametrima.');
@@ -52,11 +52,11 @@ export class HomeComponent implements OnInit {
   }
 
   cardPayment() {
-    this.buyRequest.amount = this.amount
     this.buyRequest.merchantId = this.merchantId
+    this.buyRequest.amount = this.amount
     this.buyRequest.merchantOrderId = this.merchantOrderId
     this.buyRequest.paymentType = PaymentType.CREDIT_CARD
-    this.paymentService.payment(this.buyRequest).subscribe(
+    this.paymentService.payment({merchantId: this.merchantId, amount: this.amount, merchantOrderId: this.merchantOrderId, paymentType: PaymentType.CREDIT_CARD}).subscribe(
       (response) => {
         this.authResponse = response;
         if(this.authResponse?.paymentURL == "succes") {

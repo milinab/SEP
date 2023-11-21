@@ -13,6 +13,6 @@ import lombok.Setter;
 public class BuyRequest {
     private String merchantId;
     private Double amount;
-    private Integer merchantOrderId;
+    private Long merchantOrderId;
     private PaymentType paymentType;
 }

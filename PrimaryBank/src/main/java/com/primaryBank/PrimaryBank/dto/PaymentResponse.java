@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class PaymentResponse {
-    private Integer merchantOrderId;
+    private Long merchantOrderId;
     private Integer acquirerOrderId;
     private LocalDateTime acquirerTimestamp;
     private PaymentStatus paymentStatus;

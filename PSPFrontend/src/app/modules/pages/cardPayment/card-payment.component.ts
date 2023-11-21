@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, Params} from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {PaymentService} from "../../services/payment.service";
 import {Transaction} from "../../model/transaction.model";
-import {PaymentType} from "../../enums/paymentType.enum";
+import {PaymentStatus} from "../../enums/paymentStatus.enum";
+import {PaymentResponse} from "../../dtos/paymentResponse";
 
 @Component({
   selector: 'app-home',
@@ -14,7 +15,14 @@ export class CardPaymentComponent implements OnInit {
   paymentForm!: FormGroup;
   submitted = false;
   displayedAmount: number = 748.56;
+  paymentId: number = 0;
   public transaction: Transaction = new Transaction()
+  payResponse: PaymentResponse = {
+    merchantOrderId: 0,
+    acquirerOrderId: 0,
+    acquirerTimestamp: new Date(),
+    paymentStatus: ''
+  }
 
   constructor(private route: ActivatedRoute,
               private formBuilder: FormBuilder,
@@ -26,9 +34,11 @@ export class CardPaymentComponent implements OnInit {
       if (myData) {
         const data = JSON.parse(decodeURIComponent(myData));
         console.log('Dohvaćeni podaci:', data);
+        this.paymentId = data.paymentId;
       } else {
         console.log('Podaci nisu pronađeni u query parametrima.');
       }
+
     });
 
     this.paymentForm = this.formBuilder.group({
@@ -43,15 +53,32 @@ export class CardPaymentComponent implements OnInit {
     this.submitted = true;
 
     if (this.paymentForm.valid) {
-      this.paymentService.validateCard(this.paymentForm.value).subscribe(
+      // this.paymentService.validateCard(this.paymentForm.value).subscribe(
+      //   (response) => {
+      //
+      //     console.log('Form is valid.');
+      //   },
+      //   (error) => {
+      //     console.log('Form is not valid.');
+      //   }
+      // );
+      const formValue = this.paymentForm.value;
+      this.paymentService.pay({paymentId: this.paymentId,
+        pan: formValue.cardNumber,
+        expDate: formValue.expiryDate,
+        cvv: formValue.cvv,
+        cardHolderName: formValue.cardHolderName}).subscribe(
         (response) => {
-
-          console.log('Form is valid.');
-        },
-        (error) => {
-          console.log('Form is not valid.');
+          this.payResponse = response
+          if(this.payResponse.paymentStatus == "SUCCESS") {
+            alert("success")
+          } else if(this.payResponse.paymentStatus == "FAILED") {
+            alert("failed, no money")
+          } else {
+            alert("error")
+          }
         }
-      );
+      )
     }
   }
 
