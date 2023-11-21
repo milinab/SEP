@@ -59,7 +59,7 @@ export class HomeComponent implements OnInit {
     this.paymentService.payment({merchantId: this.merchantId, amount: this.amount, merchantOrderId: this.merchantOrderId, paymentType: PaymentType.CREDIT_CARD}).subscribe(
       (response) => {
         this.authResponse = response;
-        if(this.authResponse?.paymentURL == "succes") {
+        if(this.authResponse?.paymentURL == "success") {
           const toCard = { paymentId: this.authResponse.paymentId, amount: this.authResponse.amount};
           this.router.navigate(['/card-payment'], { queryParams: { myData: JSON.stringify(toCard) } });
         }

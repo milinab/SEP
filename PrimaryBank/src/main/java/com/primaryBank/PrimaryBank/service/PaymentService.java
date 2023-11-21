@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,7 +55,7 @@ public class PaymentService {
                         transaction.getAcquiererTimestamp(), PaymentStatus.ERROR);
             }
 
-            if(paymentRequest.getPan().substring(4, 8).equals(bankCode)) {
+            if(paymentRequest.getPan().substring(0, 6).equals(bankCode)) {
                 //Transaction transaction = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
 
                 //  this.executePayment(); //implementirati skidanje sa racuna kupca i dodavanje na racun prodavca
@@ -198,5 +199,9 @@ public class PaymentService {
             return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
                     -1, LocalDateTime.now(), PaymentStatus.ERROR);
         }
+    }
+
+    public List<Transaction> getAll(){
+        return transactionRepository.findAll();
     }
 }

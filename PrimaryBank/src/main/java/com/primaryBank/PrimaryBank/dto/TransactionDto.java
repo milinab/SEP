@@ -1,6 +1,6 @@
-package com.psp.PSPBackend.dto;
+package com.primaryBank.PrimaryBank.dto;
 
-import com.psp.PSPBackend.enums.PaymentStatus;
+import com.primaryBank.PrimaryBank.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
