@@ -15,15 +15,8 @@ export class PaymentService {
 
   constructor(private http: HttpClient) {}
 
-  validateCard(card: any): Observable<any> {
-    return this.http.post<any>(this.pspBE, card).pipe(
-      map(response => {
-        return response === true;
-      }),
-      catchError(() => {
-        return of(false);
-      })
-    );
+  validateCard(card: any): Observable<any>  {
+    return this.http.post(this.psp + `api/payment/validate`, card)
   }
 
   payment(buyReq: any): Observable<any>  {

@@ -55,6 +55,7 @@ export class CardPaymentComponent implements OnInit {
     this.submitted = true;
 
     if (this.paymentForm.valid) {
+      const formValue = this.paymentForm.value;
       // this.paymentService.validateCard(this.paymentForm.value).subscribe(
       //   (response) => {
       //
@@ -64,7 +65,6 @@ export class CardPaymentComponent implements OnInit {
       //     console.log('Form is not valid.');
       //   }
       // );
-      const formValue = this.paymentForm.value;
       this.paymentService.pay({paymentId: this.paymentId,
         pan: formValue.cardNumber,
         expDate: formValue.expiryDate,
