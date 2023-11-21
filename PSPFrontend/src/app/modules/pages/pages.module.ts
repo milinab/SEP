@@ -4,7 +4,7 @@ import { AppRoutingModule } from 'src/app/app-routing.module';
 import { HomeComponent } from './home/home.component';
 import {CardPaymentComponent} from "./cardPayment/card-payment.component";
 import {MatIconModule} from "@angular/material/icon";
-import {ReactiveFormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -16,6 +16,7 @@ import {ReactiveFormsModule} from "@angular/forms";
         AppRoutingModule,
         MatIconModule,
         ReactiveFormsModule,
+        FormsModule,
     ]
 })
 export class PagesModule { }

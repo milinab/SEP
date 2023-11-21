@@ -3,6 +3,7 @@ package com.psp.PSPBackend.controller;
 import com.psp.PSPBackend.dto.AuthRequest;
 import com.psp.PSPBackend.dto.AuthResponse;
 import com.psp.PSPBackend.dto.BuyRequest;
+import com.psp.PSPBackend.dto.TransactionStartsDTO;
 import com.psp.PSPBackend.enums.PaymentStatus;
 import com.psp.PSPBackend.enums.PaymentType;
 import com.psp.PSPBackend.model.Client;
@@ -84,8 +85,8 @@ public class PaymentController {
     }
 
     @PostMapping("/calculateAmount")
-    public ResponseEntity<String> calculateAmount(@RequestBody Double agencyAmount) {
-        if (agencyAmount != null) {
+    public ResponseEntity<String> calculateAmount(@RequestBody TransactionStartsDTO transactionStartsDTO) {
+        if (transactionStartsDTO != null) {
 
             String pspFE = "http://localhost:4200";
             HttpHeaders headers = new HttpHeaders();

@@ -183,7 +183,7 @@ public class PaymentService {
 
                 double newSum = client.getAvailableSum() - pccRequest.getAmount();
                 client.setAvailableSum(newSum);
-                Transaction transaction = new Transaction(-1, -1, client.getMerchantId(), pccRequest.getAmount(),
+                Transaction transaction = new Transaction(-1, (long) -1, client.getMerchantId(), pccRequest.getAmount(),
                         null, PaymentStatus.SUCCESS, pccRequest.getAcquiererTimestamp(), LocalDateTime.now()); // sta sa mrcent order id
                 Transaction newTransaction = transactionRepository.save(transaction);
                 PccResponse pccResponse = new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
