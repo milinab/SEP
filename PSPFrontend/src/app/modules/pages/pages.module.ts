@@ -5,11 +5,17 @@ import { HomeComponent } from './home/home.component';
 import {CardPaymentComponent} from "./cardPayment/card-payment.component";
 import {MatIconModule} from "@angular/material/icon";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {TransactionSuccessComponent} from "./transaction-success/transaction-success.component";
+import {TransactionFailedComponent} from "./transaction-failed/transaction-failed.component";
+import {TransactionErrorComponent} from "./transaction-error/transaction-error.component";
 
 @NgModule({
   declarations: [
     HomeComponent,
-    CardPaymentComponent
+    CardPaymentComponent,
+    TransactionSuccessComponent,
+    TransactionFailedComponent,
+    TransactionErrorComponent
   ],
     imports: [
         CommonModule,
