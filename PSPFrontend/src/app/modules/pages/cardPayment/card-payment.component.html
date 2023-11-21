@@ -12,7 +12,7 @@
   <div class="column1">
     <div class="form-group">
       <label for="cardHolderName">Cardholder's Name<span>*</span>:</label>
-      <input type="text" id="cardHolderName" formControlName="cardHolderName" placeholder="Enter cardholder's name"
+      <input [(ngModel)]="transaction.cardHolderName"  type="text" id="cardHolderName" formControlName="cardHolderName" placeholder="Enter cardholder's name"
              [ngClass]="{ 'is-invalid': submitted && paymentForm.get('cardHolderName')?.errors }" required>
       <div *ngIf="submitted && paymentForm.get('cardHolderName')?.errors" class="invalid-feedback">
         Please enter the cardholder's name.
@@ -21,7 +21,7 @@
 
     <div class="form-group">
       <label for="cardNumber">Card Number<span>*</span>:</label>
-      <input type="text" id="cardNumber" formControlName="cardNumber" placeholder="Enter card number"
+      <input [(ngModel)]="transaction.pan" type="text" id="cardNumber" formControlName="cardNumber" placeholder="Enter card number"
              [ngClass]="{ 'is-invalid': submitted && paymentForm.get('cardNumber')?.errors }" required>
       <div *ngIf="submitted && paymentForm.get('cardNumber')?.errors" class="invalid-feedback">
         Please enter a valid 16-digit card number.
@@ -30,7 +30,7 @@
 
     <div class="form-group">
       <label for="expiryDate">Expiration Date<span>*</span>:</label>
-      <input type="text" id="expiryDate" formControlName="expiryDate" placeholder="MM/YY"
+      <input [(ngModel)]="transaction.expDate" type="text" id="expiryDate" formControlName="expiryDate" placeholder="MM/YY"
              [ngClass]="{ 'is-invalid': submitted && paymentForm.get('expiryDate')?.errors }" required>
       <div *ngIf="submitted && paymentForm.get('expiryDate')?.errors" class="invalid-feedback">
         Please enter a valid MM/YY expiration date.
@@ -39,7 +39,7 @@
 
     <div class="form-group">
       <label for="cvv">CVV<span>*</span>:</label>
-      <input type="text" id="cvv" formControlName="cvv" placeholder="CVV"
+      <input [(ngModel)]="transaction.cvv" type="text" id="cvv" formControlName="cvv" placeholder="CVV"
              [ngClass]="{ 'is-invalid': submitted && paymentForm.get('cvv')?.errors }" required>
       <div *ngIf="submitted && paymentForm.get('cvv')?.errors" class="invalid-feedback">
         Please enter a valid 3-digit CVV.

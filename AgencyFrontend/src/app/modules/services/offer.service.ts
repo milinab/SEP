@@ -10,6 +10,7 @@ import {Router} from "@angular/router";
 export class OfferService {
 
   headers: HttpHeaders = new HttpHeaders({'Content-Type': 'application/json'});
+
   constructor(private http: HttpClient, private router: Router) {
   }
 
@@ -24,8 +25,8 @@ export class OfferService {
   //   );
   // } SALJE NA BE PSP DOBRO
 
-  calculateAmount(agencyAmount: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/calculateAmount`, agencyAmount, { observe: 'response' })
+  calculateAmount(amountAgency: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/calculateAmount`, amountAgency, { observe: 'response' })
       .pipe(
         map((response) => {
           if (response.status === 302) {
