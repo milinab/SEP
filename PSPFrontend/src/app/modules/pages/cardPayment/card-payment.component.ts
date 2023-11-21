@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {PaymentService} from "../../services/payment.service";
 import {Transaction} from "../../model/transaction.model";
@@ -14,7 +14,7 @@ import {PaymentResponse} from "../../dtos/paymentResponse";
 export class CardPaymentComponent implements OnInit {
   paymentForm!: FormGroup;
   submitted = false;
-  displayedAmount: number = 748.56;
+  displayedAmount: number = 0;
   paymentId: number = 0;
   public transaction: Transaction = new Transaction()
   payResponse: PaymentResponse = {
@@ -26,7 +26,8 @@ export class CardPaymentComponent implements OnInit {
 
   constructor(private route: ActivatedRoute,
               private formBuilder: FormBuilder,
-              private paymentService: PaymentService) { }
+              private paymentService: PaymentService,
+              private router: Router) { }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -35,6 +36,7 @@ export class CardPaymentComponent implements OnInit {
         const data = JSON.parse(decodeURIComponent(myData));
         console.log('Dohvaćeni podaci:', data);
         this.paymentId = data.paymentId;
+        this.displayedAmount = data.amount
       } else {
         console.log('Podaci nisu pronađeni u query parametrima.');
       }
@@ -71,11 +73,11 @@ export class CardPaymentComponent implements OnInit {
         (response) => {
           this.payResponse = response
           if(this.payResponse.paymentStatus == "SUCCESS") {
-            alert("success")
+            this.router.navigate(['/transaction-success'])
           } else if(this.payResponse.paymentStatus == "FAILED") {
-            alert("failed, no money")
+            this.router.navigate(['/transaction-failed'])
           } else {
-            alert("error")
+            this.router.navigate(['/transaction-error'])
           }
         }
       )
