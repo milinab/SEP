@@ -3,6 +3,8 @@ package com.psp.PSPBackend.config;
 import com.psp.PSPBackend.webClient.CryptoClient;
 import com.psp.PSPBackend.webClient.PayPalClient;
 import com.psp.PSPBackend.webClient.PrimaryBankClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancedExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,10 +14,13 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @Configuration
 public class WebClientConfig {
 
+    @Autowired
+    private LoadBalancedExchangeFilterFunction filterFunction;
     @Bean
     public WebClient primaryBankWebClient() {
         return WebClient.builder()
-                .baseUrl("http://localhost:8081")
+                .baseUrl("http://primarybank")
+                .filter(filterFunction)
                 .build();
     }
 

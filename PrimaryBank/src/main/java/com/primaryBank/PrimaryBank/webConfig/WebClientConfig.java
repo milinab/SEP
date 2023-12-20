@@ -2,6 +2,8 @@ package com.primaryBank.PrimaryBank.webConfig;
 
 import com.primaryBank.PrimaryBank.webClient.PccClient;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancedExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -12,6 +14,8 @@ import reactor.netty.http.client.HttpClient;
 
 @Configuration
 public class WebClientConfig {
+    @Autowired
+    private LoadBalancedExchangeFilterFunction filterFunction;
 
     @Bean
     public WebClient pccWebClient() {
@@ -23,7 +27,8 @@ public class WebClientConfig {
 
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .baseUrl("http://localhost:8083")
+                .baseUrl("http://pcc")
+                .filter(filterFunction)
                 .build();
     }
 
