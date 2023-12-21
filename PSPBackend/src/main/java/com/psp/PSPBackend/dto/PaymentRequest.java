@@ -6,18 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class AuthRequest {
-
-    private String merchantId;
-    private String merchantPassword;
-    private Double amount;
-    private Long merchantOrderId;
-    private LocalDateTime merchantTimeStamp;
+public class PaymentRequest {
+    private Integer paymentId;
+    private String pan;
+    private String expDate;
+    private String cvv;
+    private String cardHolderName;
+    private String accountNumber;
     private PaymentType paymentType;
 }

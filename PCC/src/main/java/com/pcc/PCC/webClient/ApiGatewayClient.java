@@ -5,11 +5,10 @@ import com.pcc.PCC.dto.PccResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.service.annotation.HttpExchange;
-import org.springframework.web.service.annotation.PostExchange;
 
 @HttpExchange
-public interface PrimaryBankClient {
+public interface ApiGatewayClient {
 
-    @PostExchange("/api/payment/issuerPayment")
-    public PccResponse issuerBankPayment(@RequestBody PccRequest authRequest);
+    @PostMapping(path = "/redirecToSecondaryBank")
+    public PccResponse redirecToSecondaryBank(@RequestBody PccRequest pccRequest);
 }

@@ -5,7 +5,7 @@ import com.pcc.PCC.dto.PccResponse;
 import com.pcc.PCC.enums.PaymentStatus;
 import com.pcc.PCC.model.Transaction;
 import com.pcc.PCC.repository.TransactionRepository;
-import com.pcc.PCC.webClient.PrimaryBankClient;
+import com.pcc.PCC.webClient.ApiGatewayClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,10 +23,10 @@ import java.time.LocalDateTime;
 public class ProxyController {
 
     @Autowired
-    private PrimaryBankClient primaryBankClient;
+    private TransactionRepository transactionRepository;
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private ApiGatewayClient apiGatewayClient;
 
     @Value("${bank.code}")
     private String bankCode;
@@ -38,7 +38,7 @@ public class ProxyController {
                         null, null, null);
                 transactionRepository.save(transaction);
 
-                PccResponse response = primaryBankClient.issuerBankPayment(pccRequest);
+                PccResponse response = apiGatewayClient.redirecToSecondaryBank(pccRequest);
 
                 transaction.setIssuerOrderId(response.getIssuerOrderId());
                 transaction.setIssuerTimestamp(response.getIssuerTimestamp());

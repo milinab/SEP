@@ -1,6 +1,6 @@
 package com.pcc.PCC.webConfig;
 
-import com.pcc.PCC.webClient.PrimaryBankClient;
+import com.pcc.PCC.webClient.ApiGatewayClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancedExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
@@ -14,20 +14,21 @@ public class WebClientConfig {
 
     @Autowired
     private LoadBalancedExchangeFilterFunction filterFunction;
+
     @Bean
-    public WebClient primaryBankWebClient() {
+    public WebClient apiGatewayWebClient() {
         return WebClient.builder()
-                .baseUrl("http://secondarybank")
+                .baseUrl("http://apigateway")
                 .filter(filterFunction)
                 .build();
     }
 
     @Bean
-    public PrimaryBankClient primaryBankClient() {
+    public ApiGatewayClient apiGatewayClient() {
         HttpServiceProxyFactory httpServiceProxyFactory
                 = HttpServiceProxyFactory
-                .builder(WebClientAdapter.forClient(primaryBankWebClient()))
+                .builder(WebClientAdapter.forClient(apiGatewayWebClient()))
                 .build();
-        return httpServiceProxyFactory.createClient(PrimaryBankClient.class);
+        return httpServiceProxyFactory.createClient(ApiGatewayClient.class);
     }
 }

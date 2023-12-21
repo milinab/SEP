@@ -1,8 +1,6 @@
 package com.psp.PSPBackend.config;
 
-import com.psp.PSPBackend.webClient.CryptoClient;
-import com.psp.PSPBackend.webClient.PayPalClient;
-import com.psp.PSPBackend.webClient.PrimaryBankClient;
+import com.psp.PSPBackend.webClient.ApiGatewayClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancedExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
@@ -16,52 +14,21 @@ public class WebClientConfig {
 
     @Autowired
     private LoadBalancedExchangeFilterFunction filterFunction;
+
     @Bean
-    public WebClient primaryBankWebClient() {
+    public WebClient apiGatewayWebClient() {
         return WebClient.builder()
-                .baseUrl("http://primarybank")
+                .baseUrl("http://apigateway")
                 .filter(filterFunction)
                 .build();
     }
 
     @Bean
-    public PrimaryBankClient primaryBankClient() {
+    public ApiGatewayClient apiGatewayClient() {
         HttpServiceProxyFactory httpServiceProxyFactory
                 = HttpServiceProxyFactory
-                .builder(WebClientAdapter.forClient(primaryBankWebClient()))
+                .builder(WebClientAdapter.forClient(apiGatewayWebClient()))
                 .build();
-        return httpServiceProxyFactory.createClient(PrimaryBankClient.class);
-    }
-
-    @Bean
-    public WebClient paypalWebClient() {
-        return WebClient.builder()
-                .baseUrl("http://localhost:8084")
-                .build();
-    }
-
-    @Bean
-    public PayPalClient paypalClient() {
-        HttpServiceProxyFactory httpServiceProxyFactory
-                = HttpServiceProxyFactory
-                .builder(WebClientAdapter.forClient(paypalWebClient()))
-                .build();
-        return httpServiceProxyFactory.createClient(PayPalClient.class);
-    }
-
-    @Bean
-    public WebClient cryptoWebClient() {
-        return WebClient.builder()
-                .baseUrl("http://localhost:8085")
-                .build();
-    }
-
-    @Bean
-    public CryptoClient cryptoClient() {
-        HttpServiceProxyFactory httpServiceProxyFactory
-                = HttpServiceProxyFactory
-                .builder(WebClientAdapter.forClient(cryptoWebClient()))
-                .build();
-        return httpServiceProxyFactory.createClient(CryptoClient.class);
+        return httpServiceProxyFactory.createClient(ApiGatewayClient.class);
     }
 }

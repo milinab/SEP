@@ -1,6 +1,6 @@
-package com.psp.PSPBackend.dto;
+package com.apiGateway.apiGateway.dto;
 
-import com.psp.PSPBackend.enums.PaymentType;
+import com.apiGateway.apiGateway.enums.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class AuthRequest {
-
     private String merchantId;
     private String merchantPassword;
     private Double amount;

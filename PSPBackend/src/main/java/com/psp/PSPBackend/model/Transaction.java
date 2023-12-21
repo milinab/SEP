@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 public class Transaction {
 
     @Id
+    private Integer paymentId;
     private Long merchantOrderId;
     private String merchantId;
     private Double amount;

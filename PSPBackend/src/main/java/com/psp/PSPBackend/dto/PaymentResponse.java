@@ -1,12 +1,13 @@
-package com.primaryBank.PrimaryBank.dto;
+package com.psp.PSPBackend.dto;
 
-import com.primaryBank.PrimaryBank.enums.PaymentStatus;
+import com.psp.PSPBackend.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
