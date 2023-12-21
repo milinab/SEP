@@ -1,5 +1,11 @@
 package com.primaryBank.PrimaryBank.service;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.primaryBank.PrimaryBank.dto.*;
 import com.primaryBank.PrimaryBank.enums.PaymentStatus;
 import com.primaryBank.PrimaryBank.model.Client;
@@ -11,10 +17,20 @@ import com.primaryBank.PrimaryBank.webClient.PccClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import java.io.File;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -203,5 +219,43 @@ public class PaymentService {
 
     public List<Transaction> getAll(){
         return transactionRepository.findAll();
+    }
+
+    public AuthResponse generateQRcode(AuthRequest authRequest) throws WriterException, IOException {
+        Client client = clientRepository.findClientByMerchantId(authRequest.getMerchantId());
+        if(client != null && client.getMerchantPassword().equals(authRequest.getMerchantPassword())){
+            Transaction transaction = new Transaction(-1, authRequest.getMerchantOrderId(), authRequest.getMerchantId(),
+                    authRequest.getAmount(), authRequest.getMerchantTimeStamp(), null, null, null);
+            transaction = transactionRepository.save(transaction);
+
+            int width = 300;
+            int height = 300;
+
+            Map<EncodeHintType, Object> hints = new HashMap<>();
+            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode("Amount:"+transaction.getAmount()+"\n"+
+                    "Currency:"+"RSD"+"\n"+
+                    "Name:"+client.getName()+"\n"+
+                    "Account number:"+client.getAccountNumber(), BarcodeFormat.QR_CODE, width, height, hints);
+
+            BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
+
+            String folderPath = "E:\\SEP projekat\\SEP\\PSPFrontend\\src\\assets";
+
+            String fileName = transaction.getPaymentId()+ "qrCodeImage.png";
+
+            String filePath = folderPath + File.separator + fileName;
+
+            ImageIO.write(bufferedImage, "png", new File(filePath));
+
+            AuthResponse response = new AuthResponse(transaction.getPaymentId(), "success",
+                    transaction.getAmount(), fileName);
+
+            return response;
+        }else {
+            return null;
+        }
     }
 }

@@ -61,11 +61,11 @@ public class PaymentController {
                         transactionRepository.save(transaction);
                         return new ResponseEntity<>(response, HttpStatus.OK);
                     } else {
-                        return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount()),
+                        return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount(), null),
                                 HttpStatus.BAD_REQUEST);
                     }
                 } else {
-                    return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount()),
+                    return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount(), null),
                             HttpStatus.BAD_REQUEST);
                 }
             } else if (buyRequest.getPaymentType().equals(PaymentType.PAYPAL)) {
@@ -75,11 +75,14 @@ public class PaymentController {
                 AuthResponse response = cryptoClient.auth(new AuthRequest());
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
-                AuthResponse response = primaryBankClient.QRPay(new AuthRequest());
+                Client client = clientService.findClientByMerchantId(buyRequest.getMerchantId());
+                LocalDateTime merchantTimeStamp = LocalDateTime.now();
+                AuthResponse response = primaryBankClient.generateQRcode(new AuthRequest(buyRequest.getMerchantId(), client.getMerchantPassword(),
+                        buyRequest.getAmount(), buyRequest.getMerchantOrderId(), merchantTimeStamp));
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (NullPointerException e){
-            return new ResponseEntity<>(new AuthResponse(-1, "error", buyRequest.getAmount()),
+            return new ResponseEntity<>(new AuthResponse(-1, "error", buyRequest.getAmount(), null),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

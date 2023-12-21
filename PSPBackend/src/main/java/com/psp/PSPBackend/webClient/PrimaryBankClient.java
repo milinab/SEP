@@ -16,8 +16,8 @@ public interface PrimaryBankClient {
     @PostExchange("/api/payment/auth")
     public AuthResponse auth(@RequestBody AuthRequest authRequest);
 
-    @PostExchange("/api/payment/QRPay")
-    public AuthResponse QRPay(@RequestBody AuthRequest authRequest);
+    @PostExchange("/api/payment/generateQRcode")
+    public AuthResponse generateQRcode(@RequestBody AuthRequest authRequest);
 
     @GetExchange("/api/payment/getTransactions")
     public List<TransactionDto> getTransactions();
