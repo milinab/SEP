@@ -74,4 +74,14 @@ public class PaymentController {
         return paymentService.generateQRcode(authRequest);
     }
 
+    @PostMapping(path = "/payQRcode")
+    public PaymentResponse payQRcode(@RequestBody PaymentRequest paymentRequest) {
+        return paymentService.payQrCode(paymentRequest);
+    }
+
+    @PostMapping("/issuerPaymentQRcode")
+    public PccResponse issuerBankPaymentQRcode(@RequestBody PccRequest pccRequest){
+        return paymentService.issuerBankPaymentQRcode(pccRequest);
+    }
+
 }

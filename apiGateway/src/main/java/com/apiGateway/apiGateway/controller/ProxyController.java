@@ -12,6 +12,7 @@ import com.apiGateway.apiGateway.webClient.PSPClient;
 import com.apiGateway.apiGateway.webClient.PccClient;
 import com.apiGateway.apiGateway.webClient.PrimaryBankClient;
 import com.apiGateway.apiGateway.webClient.SecondaryBankClient;
+import com.google.zxing.WriterException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/proxy")
@@ -43,11 +46,11 @@ public class ProxyController {
 
     //ovo je redirect kada se radi auth (pre placanja)
     @PostMapping(path = "/redirect")
-    public AuthResponse redirectByPaymentType(@RequestBody AuthRequest authRequest) {
+    public AuthResponse redirectByPaymentType(@RequestBody AuthRequest authRequest) throws IOException, WriterException {
         if(authRequest.getPaymentType().equals(PaymentType.CREDIT_CARD)) {
             return primaryBankClient.auth(authRequest);
         } else if (authRequest.getPaymentType().equals(PaymentType.QR_CODE)) {
-            return null;
+            return primaryBankClient.generateQRcode(authRequest);
         } else if (authRequest.getPaymentType().equals(PaymentType.PAYPAL)) {
             return null;
         } else {
@@ -65,7 +68,7 @@ public class ProxyController {
         if(paymentRequest.getPaymentType().equals(PaymentType.CREDIT_CARD)) {
             return primaryBankClient.pay(paymentRequest);
         } else if (paymentRequest.getPaymentType().equals(PaymentType.QR_CODE)) {
-            return null;
+            return primaryBankClient.payQRcode(paymentRequest);
         } else if (paymentRequest.getPaymentType().equals(PaymentType.PAYPAL)) {
             return null;
         } else {
@@ -81,5 +84,15 @@ public class ProxyController {
     @PostMapping(path = "/redirecToSecondaryBank")
     public PccResponse redirecToSecondaryBank(@RequestBody PccRequest pccRequest) {
         return secondaryBankClient.issuerBankPayment(pccRequest);
+    }
+
+    @PostMapping(path = "/redirecToPccQRcode")
+    public PccResponse redirecToPccQRcode(@RequestBody PccRequest pccRequest) {
+        return pccClient.sendToIssuerBankQRcode(pccRequest);
+    }
+
+    @PostMapping(path = "/redirecToSecondaryBankQRcode")
+    public PccResponse redirecToSecondaryBankQRcode(@RequestBody PccRequest pccRequest) {
+        return secondaryBankClient.issuerBankPaymentQRcode(pccRequest);
     }
 }

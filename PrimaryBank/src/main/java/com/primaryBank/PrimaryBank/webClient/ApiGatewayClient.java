@@ -12,4 +12,7 @@ public interface ApiGatewayClient {
 
     @PostExchange("/api/proxy/redirecToPcc")
     public PccResponse redirecToPcc(@RequestBody PccRequest pccRequest);
+
+    @PostExchange("/api/proxy/redirecToPccQRcode")
+    public PccResponse redirecToPccQRcode(@RequestBody PccRequest pccRequest);
 }

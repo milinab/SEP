@@ -12,4 +12,7 @@ public interface ApiGatewayClient {
 
     @PostExchange("/api/proxy/redirecToSecondaryBank")
     public PccResponse redirecToSecondaryBank(@RequestBody PccRequest pccRequest);
+
+    @PostExchange("/api/proxy/redirecToSecondaryBankQRcode")
+    public PccResponse redirecToSecondaryBankQRcode(@RequestBody PccRequest pccRequest);
 }

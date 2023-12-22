@@ -30,6 +30,9 @@ public class ProxyController {
 
     @Value("${bank.code}")
     private String bankCode;
+
+    @Value("${bank.account}")
+    private String bankAccountCode;
     @PostMapping("/sendToIssuerBank")
     public PccResponse sendToIssuerBank(@RequestBody PccRequest pccRequest) {
         try {
@@ -39,6 +42,32 @@ public class ProxyController {
                 transactionRepository.save(transaction);
 
                 PccResponse response = apiGatewayClient.redirecToSecondaryBank(pccRequest);
+
+                transaction.setIssuerOrderId(response.getIssuerOrderId());
+                transaction.setIssuerTimestamp(response.getIssuerTimestamp());
+                transaction.setPaymentStatus(response.getPaymentStatus());
+                transactionRepository.save(transaction);
+
+                return response;
+            } else {
+                return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(), -1, null,
+                        PaymentStatus.ERROR);
+            }
+        } catch (NullPointerException e) {
+            return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(), -1, null,
+                    PaymentStatus.ERROR);
+        }
+    }
+
+    @PostMapping("/sendToIssuerBankQRcode")
+    public PccResponse sendToIssuerBankQRcode(@RequestBody PccRequest pccRequest) {
+        try {
+            if(pccRequest.getAccountNumber().substring(0, 3).equals(bankAccountCode)) {
+                Transaction transaction = new Transaction(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
+                        null, null, null);
+                transactionRepository.save(transaction);
+
+                PccResponse response = apiGatewayClient.redirecToSecondaryBankQRcode(pccRequest);
 
                 transaction.setIssuerOrderId(response.getIssuerOrderId());
                 transaction.setIssuerTimestamp(response.getIssuerTimestamp());
