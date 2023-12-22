@@ -19,7 +19,14 @@ public class WebClientConfig {
 
     @Bean
     public WebClient apiGatewayWebClient() {
+
+        HttpClient httpClient = HttpClient.create()
+                .doOnConnected(conn -> conn
+                        .addHandler(new ReadTimeoutHandler(20)) // 10 sekundi
+                );
+
         return WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .baseUrl("http://apigateway")
                 .filter(filterFunction)
                 .build();

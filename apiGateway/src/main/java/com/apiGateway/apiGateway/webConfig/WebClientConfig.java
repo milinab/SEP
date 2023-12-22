@@ -23,7 +23,14 @@ public class WebClientConfig {
 
     @Bean
     public WebClient pspWebClient() {
+
+        HttpClient httpClient = HttpClient.create()
+                .doOnConnected(conn -> conn
+                        .addHandler(new ReadTimeoutHandler(20)) // 10 sekundi
+                );
+
         return WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .baseUrl("http://psp")
                 .filter(filterFunction)
                 .build();
@@ -40,7 +47,14 @@ public class WebClientConfig {
 
     @Bean
     public WebClient primaryBankWebClient() {
+
+        HttpClient httpClient = HttpClient.create()
+                .doOnConnected(conn -> conn
+                        .addHandler(new ReadTimeoutHandler(20)) // 10 sekundi
+                );
+
         return WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .baseUrl("http://primarybank")
                 .filter(filterFunction)
                 .build();
@@ -81,7 +95,14 @@ public class WebClientConfig {
 
     @Bean
     public WebClient secondaryBankWebClient() {
+
+        HttpClient httpClient = HttpClient.create()
+                .doOnConnected(conn -> conn
+                        .addHandler(new ReadTimeoutHandler(20)) // 10 sekundi
+                );
+
         return WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .baseUrl("http://secondarybank")
                 .filter(filterFunction)
                 .build();

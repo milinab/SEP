@@ -10,6 +10,6 @@ import org.springframework.web.service.annotation.PostExchange;
 @HttpExchange
 public interface ApiGatewayClient {
 
-    @PostExchange("/redirecToPcc")
+    @PostExchange("/api/proxy/redirecToPcc")
     public PccResponse redirecToPcc(@RequestBody PccRequest pccRequest);
 }

@@ -9,6 +9,6 @@ import org.springframework.web.service.annotation.PostExchange;
 
 @HttpExchange
 public interface PccClient {
-    @PostExchange("/sendToIssuerBank")
+    @PostExchange("/api/payment/sendToIssuerBank")
     public PccResponse sendToIssuerBank(@RequestBody PccRequest pccRequest);
 }

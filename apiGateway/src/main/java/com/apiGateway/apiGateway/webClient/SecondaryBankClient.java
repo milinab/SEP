@@ -10,6 +10,6 @@ import org.springframework.web.service.annotation.PostExchange;
 @HttpExchange
 public interface SecondaryBankClient {
 
-    @PostExchange("/issuerPayment")
+    @PostExchange("/api/payment/issuerPayment")
     public PccResponse issuerBankPayment(@RequestBody PccRequest pccRequest);
 }
