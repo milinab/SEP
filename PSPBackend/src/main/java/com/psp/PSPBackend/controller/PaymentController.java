@@ -50,7 +50,7 @@ public class PaymentController {
                         client.getMerchantPassword(), buyRequest.getAmount(), buyRequest.getMerchantOrderId(), merchantTimeStamp,
                         buyRequest.getPaymentType()));
                 if(response != null) {
-                    Transaction transaction = new Transaction(response.getPaymentId(),buyRequest.getMerchantOrderId(), buyRequest.getMerchantId(),
+                    Transaction transaction = new Transaction(-1, response.getPaymentId(),buyRequest.getMerchantOrderId(), buyRequest.getMerchantId(),
                             buyRequest.getAmount(), merchantTimeStamp, null); //scheduler da bi se promenilo
                     transactionRepository.save(transaction);
                     return new ResponseEntity<>(response, HttpStatus.OK);
@@ -92,7 +92,7 @@ public class PaymentController {
         transactionRepository.save(merchantTransaction);
 
         if(response.getIssuerOrderId() != null){
-            Transaction issuerTransaction = new Transaction(response.getIssuerOrderId(), response.getMerchantOrderId(),
+            Transaction issuerTransaction = new Transaction(-1, response.getIssuerOrderId(), response.getMerchantOrderId(),
                      paymentRequest.getPan(), merchantTransaction.getAmount(), merchantTransaction.getMerchantTimeStamp(),
                     response.getPaymentStatus());
             transactionRepository.save(issuerTransaction);

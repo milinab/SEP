@@ -11,4 +11,7 @@ import org.springframework.web.service.annotation.PostExchange;
 public interface PccClient {
     @PostExchange("/api/payment/sendToIssuerBank")
     public PccResponse sendToIssuerBank(@RequestBody PccRequest pccRequest);
+
+    @PostExchange("/api/payment/sendToIssuerBankQRcode")
+    public PccResponse sendToIssuerBankQRcode(@RequestBody PccRequest pccRequest);
 }

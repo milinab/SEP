@@ -5,6 +5,7 @@ import {PaymentResponse} from "../../dtos/paymentResponse";
 import { ActivatedRoute, Router } from '@angular/router';
 import { PaymentService } from '../../services/payment.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { PaymentType } from '../../enums/paymentType.enum';
 
 @Component({
   selector: 'app-qrcode-payment',
@@ -59,10 +60,12 @@ export class QRcodePaymentComponent implements OnInit {
       const formValue = this.paymentForm.value;
       
       this.paymentService.pay({paymentId: this.paymentId,
-        pan: formValue.cardNumber,
-        expDate: formValue.expiryDate,
-        cvv: formValue.cvv,
-        cardHolderName: formValue.cardHolderName}).subscribe(
+        pan: '',
+        expDate: '',
+        cvv: '',
+        cardHolderName: '',
+        accountNumber: formValue.accountNumber,
+        paymentType: PaymentType.QR_CODE}).subscribe(
         (response) => {
           this.payResponse = response
           if(this.payResponse.paymentStatus == "SUCCESS") {

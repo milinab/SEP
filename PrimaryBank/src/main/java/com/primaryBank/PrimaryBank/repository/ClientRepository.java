@@ -12,4 +12,5 @@ public interface ClientRepository extends JpaRepository<Client, String> {
     Client findClientByPan(String pan);
 
     Optional<Client> searchClientByPan(String pan);
+    Optional<Client> searchClientByAccountNumber(String accountNumber);
 }

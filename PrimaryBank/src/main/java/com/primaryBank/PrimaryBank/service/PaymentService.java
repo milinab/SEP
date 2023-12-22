@@ -52,6 +52,9 @@ public class PaymentService {
     @Value("${bank.code}")
     private String bankCode;
 
+    @Value("${bank.account}")
+    private String bankAccountCode;
+
     public Integer clientExists(AuthRequest authRequest){
         Client client = clientRepository.findClientByMerchantId(authRequest.getMerchantId());
         if(client != null && client.getMerchantPassword().equals(authRequest.getMerchantPassword())){
@@ -103,7 +106,7 @@ public class PaymentService {
 
                 PccResponse response = apiGatewayClient.redirecToPcc(new PccRequest(paymentRequest.getPan(),
                         paymentRequest.getExpDate(), paymentRequest.getCvv(), paymentRequest.getCardHolderName(),
-                        paymentRequest.getPaymentId(), transaction.getAcquiererTimestamp(), transaction.getAmount()));
+                        paymentRequest.getPaymentId(), transaction.getAcquiererTimestamp(), transaction.getAmount(), null));
 
                 if(response.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
                     Client client = clientRepository.findClientByMerchantId(transaction.getMerchantId());
@@ -259,4 +262,119 @@ public class PaymentService {
             return null;
         }
     }
+
+    public PaymentResponse payQrCode(PaymentRequest paymentRequest) {
+
+        Transaction transaction = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
+        if(transaction.getMerchantTimeStamp().isBefore(LocalDateTime.now().minusMinutes(15))){
+            return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
+                    transaction.getAcquiererTimestamp(), PaymentStatus.ERROR, null);
+        }
+
+        if(paymentRequest.getAccountNumber().substring(0, 3).equals(bankAccountCode)){
+
+            ValidationDto hasEnoughMoney = hasEnoughMoney(paymentRequest, transaction);
+
+            if (!hasEnoughMoney.isValid()) {
+                transaction.setAcquiererTimestamp(LocalDateTime.now());
+                transaction.setIssuerTimestamp(LocalDateTime.now());
+                transaction.setPaymentStatus(PaymentStatus.FAILED);
+                transactionRepository.save(transaction);
+                return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
+                        transaction.getAcquiererTimestamp(), PaymentStatus.FAILED, null);
+            }
+
+            Transaction transactionAfterUpdate = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
+            if (transactionAfterUpdate.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
+                return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
+                        transactionAfterUpdate.getAcquiererTimestamp(), PaymentStatus.SUCCESS, hasEnoughMoney.getIssuerTransactionId());
+            } else {
+                return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
+                        transactionAfterUpdate.getAcquiererTimestamp(), PaymentStatus.ERROR, null);
+            }
+
+        } else {
+
+            transaction.setAcquiererTimestamp(LocalDateTime.now());
+            transactionRepository.save(transaction);
+
+            PccResponse response = apiGatewayClient.redirecToPccQRcode(new PccRequest(paymentRequest.getPan(),
+                    paymentRequest.getExpDate(), paymentRequest.getCvv(), paymentRequest.getCardHolderName(),
+                    paymentRequest.getPaymentId(), transaction.getAcquiererTimestamp(), transaction.getAmount(),
+                    paymentRequest.getAccountNumber()));
+
+            if(response.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
+                Client client = clientRepository.findClientByMerchantId(transaction.getMerchantId());
+                client.setAvailableSum(client.getAvailableSum() + transaction.getAmount());
+                clientRepository.save(client);
+
+                transaction.setPaymentStatus(PaymentStatus.SUCCESS);
+                transaction.setIssuerTimestamp(response.getIssuerTimestamp());
+                transactionRepository.save(transaction);
+
+                return new PaymentResponse(transaction.getMerchantOrderId(), response.getAcquirerOrderId(),
+                        response.getAcquirerTimestamp(), PaymentStatus.SUCCESS, response.getIssuerOrderId());
+            } else {
+                transaction.setIssuerTimestamp(response.getIssuerTimestamp());
+                transaction.setPaymentStatus(response.getPaymentStatus());
+                transactionRepository.save(transaction);
+                return new PaymentResponse(transaction.getMerchantOrderId(), response.getAcquirerOrderId(),
+                        response.getAcquirerTimestamp(), response.getPaymentStatus(), response.getIssuerOrderId());
+            }
+        }
+    }
+
+    private ValidationDto hasEnoughMoney(PaymentRequest paymentRequest, Transaction transaction) {
+        Optional<Client> optionalClient = clientRepository.searchClientByAccountNumber(paymentRequest.getAccountNumber());
+
+        if (!optionalClient.isPresent()) {
+            return new ValidationDto(false, null);
+        }
+        Client client = optionalClient.get();
+
+        if (client.getAvailableSum() < transaction.getAmount()){
+            return new ValidationDto(false, null);
+        }
+
+        double newSum = client.getAvailableSum() - transaction.getAmount();
+        client.setAvailableSum(newSum);
+        clientRepository.save(client);
+        updateMerchantAccount(transaction);
+
+        Transaction transaction1 = new Transaction(-1, transaction.getMerchantOrderId(), client.getMerchantId(),
+                transaction.getAmount(), transaction.getMerchantTimeStamp(), PaymentStatus.SUCCESS, LocalDateTime.now(),
+                LocalDateTime.now());
+
+        Transaction issuerTransaction = transactionRepository.save(transaction1);
+
+
+        return new ValidationDto(true, issuerTransaction.getPaymentId());
+    }
+
+    public PccResponse issuerBankPaymentQRcode(PccRequest pccRequest) {
+        try {
+            Optional<Client> optionalClient = clientRepository.searchClientByAccountNumber(pccRequest.getAccountNumber());
+            if(optionalClient.isPresent() && optionalClient.get().getAvailableSum()>=pccRequest.getAmount()){
+                Client client = optionalClient.get();
+                clientRepository.save(client);
+
+                double newSum = client.getAvailableSum() - pccRequest.getAmount();
+                client.setAvailableSum(newSum);
+                Transaction transaction = new Transaction(-1, (long) -1, client.getMerchantId(), pccRequest.getAmount(),
+                        null, PaymentStatus.SUCCESS, pccRequest.getAcquiererTimestamp(), LocalDateTime.now());
+                Transaction newTransaction = transactionRepository.save(transaction);
+                PccResponse pccResponse = new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
+                        newTransaction.getPaymentId(), transaction.getIssuerTimestamp(), PaymentStatus.SUCCESS);
+                return pccResponse;
+            } else {
+                return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
+                        -1, LocalDateTime.now(), PaymentStatus.FAILED);
+            }
+
+        } catch (NullPointerException e) {
+            return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
+                    -1, LocalDateTime.now(), PaymentStatus.ERROR);
+        }
+    }
+
 }

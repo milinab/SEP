@@ -12,4 +12,7 @@ public interface SecondaryBankClient {
 
     @PostExchange("/api/payment/issuerPayment")
     public PccResponse issuerBankPayment(@RequestBody PccRequest pccRequest);
+
+    @PostExchange("/api/payment/issuerPaymentQRcode")
+    public PccResponse issuerBankPaymentQRcode(@RequestBody PccRequest pccRequest);
 }
