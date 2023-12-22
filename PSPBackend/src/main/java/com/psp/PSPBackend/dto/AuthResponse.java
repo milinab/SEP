@@ -14,5 +14,6 @@ public class AuthResponse {
     private Integer paymentId;
     private String paymentURL;
     private Double amount;
+    private String qrCode;
 
 }

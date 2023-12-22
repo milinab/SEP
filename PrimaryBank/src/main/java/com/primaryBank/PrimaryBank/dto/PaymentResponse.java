@@ -16,4 +16,5 @@ public class PaymentResponse {
     private Integer acquirerOrderId;
     private LocalDateTime acquirerTimestamp;
     private PaymentStatus paymentStatus;
+    private Integer issuerOrderId;
 }

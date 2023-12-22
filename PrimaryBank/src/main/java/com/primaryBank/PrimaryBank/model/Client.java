@@ -33,4 +33,7 @@ public class Client {
 
     @Pattern(regexp = "^[a-zA-Z\\s]*$", message = "Cardholder name must contain only letters and spaces")
     private String cardHolderName;
+
+    private String accountNumber;
+    private String name;
 }

@@ -1,5 +1,6 @@
 package com.primaryBank.PrimaryBank.controller;
 
+import com.google.zxing.WriterException;
 import com.primaryBank.PrimaryBank.dto.*;
 import com.primaryBank.PrimaryBank.enums.PaymentStatus;
 import com.primaryBank.PrimaryBank.model.Transaction;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.PostExchange;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,7 @@ public class PaymentController {
     public AuthResponse auth(@RequestBody AuthRequest authRequest) {
         Integer paymentId = paymentService.clientExists(authRequest);
         if(paymentId != null){
-            AuthResponse response = new AuthResponse(paymentId, "success", authRequest.getAmount());
+            AuthResponse response = new AuthResponse(paymentId, "success", authRequest.getAmount(), null);
             return response;
         }else {
             return null;
@@ -51,11 +53,11 @@ public class PaymentController {
         return paymentService.issuerBankPayment(pccRequest);
     }
 
-    @PostMapping(path = "/QRPay")
+    /*@PostMapping(path = "/QRPay")
     public AuthResponse QRPay(@RequestBody AuthRequest authRequest) {
         return new AuthResponse(-1,
                 "success QR", 0.0);
-    }
+    }*/
 
     @GetMapping(path = "/getTransactions")
     public List<TransactionDto> getTransactions() {
@@ -65,6 +67,11 @@ public class PaymentController {
                     t.getMerchantTimeStamp(), t.getPaymentStatus(), t.getAcquiererTimestamp(), t.getIssuerTimestamp()));
         }
         return ret;
+    }
+
+    @PostMapping(path = "/generateQRcode")
+    public AuthResponse generateQRcode(@RequestBody AuthRequest authRequest) throws IOException, WriterException {
+        return paymentService.generateQRcode(authRequest);
     }
 
 }

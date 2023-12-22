@@ -10,6 +10,7 @@ export class PaymentService {
   private pspBE = 'http://localhost:8080/api/payment/validateCard';
   private psp = 'http://localhost:8080/';
   private primaryBank = 'http://localhost:8081/';
+  private apiGateway = 'http://localhost:8084/';
   headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
 
 
@@ -20,10 +21,10 @@ export class PaymentService {
   }
 
   payment(buyReq: any): Observable<any>  {
-    return this.http.post(this.psp + `api/payment/buy`, buyReq)
+    return this.http.post(this.apiGateway + `api/proxy/buy`, buyReq)
   }
 
   pay(transaction: any): Observable<any> {
-    return this.http.post(this.primaryBank + `api/payment/pay`, transaction)
+    return this.http.post(this.apiGateway + `api/proxy/pay`, transaction)
   }
 }

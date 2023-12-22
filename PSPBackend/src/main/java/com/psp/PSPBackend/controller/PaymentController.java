@@ -3,6 +3,8 @@ package com.psp.PSPBackend.controller;
 import com.psp.PSPBackend.dto.AuthRequest;
 import com.psp.PSPBackend.dto.AuthResponse;
 import com.psp.PSPBackend.dto.BuyRequest;
+import com.psp.PSPBackend.dto.PaymentRequest;
+import com.psp.PSPBackend.dto.PaymentResponse;
 import com.psp.PSPBackend.dto.TransactionStartsDTO;
 import com.psp.PSPBackend.enums.PaymentStatus;
 import com.psp.PSPBackend.enums.PaymentType;
@@ -10,9 +12,7 @@ import com.psp.PSPBackend.model.Client;
 import com.psp.PSPBackend.model.Transaction;
 import com.psp.PSPBackend.repository.TransactionRepository;
 import com.psp.PSPBackend.service.ClientService;
-import com.psp.PSPBackend.webClient.CryptoClient;
-import com.psp.PSPBackend.webClient.PayPalClient;
-import com.psp.PSPBackend.webClient.PrimaryBankClient;
+import com.psp.PSPBackend.webClient.ApiGatewayClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,16 +31,11 @@ import java.util.Date;
 @CrossOrigin(origins = {"http://localhost:4200", "http://localhost:4201"})
 public class PaymentController {
 
-    @Autowired
-    private PrimaryBankClient primaryBankClient;
-
-    @Autowired
-    private PayPalClient payPalClient;
-    @Autowired
-    private CryptoClient cryptoClient;
 
     @Autowired
     private ClientService clientService;
+    @Autowired
+    private ApiGatewayClient apiGatewayClient;
 
     @Autowired
     private TransactionRepository transactionRepository;
@@ -48,38 +43,27 @@ public class PaymentController {
     public ResponseEntity<AuthResponse> buy(@RequestBody BuyRequest buyRequest) {
 
         try {
-            if(buyRequest.getPaymentType().equals(PaymentType.CREDIT_CARD)) {
-                // izgenerisati merchant order id
-                Client client = clientService.findClientByMerchantId(buyRequest.getMerchantId());
-                if(client != null) {
-                    LocalDateTime merchantTimeStamp = LocalDateTime.now();
-                    AuthResponse response = primaryBankClient.auth(new AuthRequest(buyRequest.getMerchantId(), client.getMerchantPassword(),
-                            buyRequest.getAmount(), buyRequest.getMerchantOrderId(), merchantTimeStamp));
-                    if(response != null) {
-                        Transaction transaction = new Transaction(buyRequest.getMerchantOrderId(), buyRequest.getMerchantId(),
-                                buyRequest.getAmount(), merchantTimeStamp, null); //scheduler da bi se promenilo
-                        transactionRepository.save(transaction);
-                        return new ResponseEntity<>(response, HttpStatus.OK);
-                    } else {
-                        return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount()),
-                                HttpStatus.BAD_REQUEST);
-                    }
+            Client client = clientService.findClientByMerchantId(buyRequest.getMerchantId());
+            if(client != null) {
+                LocalDateTime merchantTimeStamp = LocalDateTime.now();
+                AuthResponse response = apiGatewayClient.redirectByPaymentType(new AuthRequest(buyRequest.getMerchantId(),
+                        client.getMerchantPassword(), buyRequest.getAmount(), buyRequest.getMerchantOrderId(), merchantTimeStamp,
+                        buyRequest.getPaymentType()));
+                if(response != null) {
+                    Transaction transaction = new Transaction(response.getPaymentId(),buyRequest.getMerchantOrderId(), buyRequest.getMerchantId(),
+                            buyRequest.getAmount(), merchantTimeStamp, null); //scheduler da bi se promenilo
+                    transactionRepository.save(transaction);
+                    return new ResponseEntity<>(response, HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount()),
+                    return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount(), null),
                             HttpStatus.BAD_REQUEST);
                 }
-            } else if (buyRequest.getPaymentType().equals(PaymentType.PAYPAL)) {
-                AuthResponse response = payPalClient.auth(new AuthRequest());
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } else if (buyRequest.getPaymentType().equals(PaymentType.CRYPTO)) {
-                AuthResponse response = cryptoClient.auth(new AuthRequest());
-                return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
-                AuthResponse response = primaryBankClient.QRPay(new AuthRequest());
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount(), null),
+                        HttpStatus.BAD_REQUEST);
             }
         } catch (NullPointerException e){
-            return new ResponseEntity<>(new AuthResponse(-1, "error", buyRequest.getAmount()),
+            return new ResponseEntity<>(new AuthResponse(-1, "error", buyRequest.getAmount(), null),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -98,5 +82,21 @@ public class PaymentController {
         } else {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @PostMapping(path = "/pay")
+    public PaymentResponse pay(@RequestBody PaymentRequest paymentRequest) {
+        PaymentResponse response = apiGatewayClient.redirectPayment(paymentRequest);
+        Transaction merchantTransaction = transactionRepository.findTransactionByMerchantOrderId(response.getMerchantOrderId());
+        merchantTransaction.setPaymentStatus(response.getPaymentStatus());
+        transactionRepository.save(merchantTransaction);
+
+        if(response.getIssuerOrderId() != null){
+            Transaction issuerTransaction = new Transaction(response.getIssuerOrderId(), response.getMerchantOrderId(),
+                     paymentRequest.getPan(), merchantTransaction.getAmount(), merchantTransaction.getMerchantTimeStamp(),
+                    response.getPaymentStatus());
+            transactionRepository.save(issuerTransaction);
+        }
+        return response;
     }
 }
