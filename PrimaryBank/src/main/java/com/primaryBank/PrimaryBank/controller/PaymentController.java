@@ -3,6 +3,7 @@ package com.primaryBank.PrimaryBank.controller;
 import com.google.zxing.WriterException;
 import com.primaryBank.PrimaryBank.dto.*;
 import com.primaryBank.PrimaryBank.enums.PaymentStatus;
+import com.primaryBank.PrimaryBank.model.Client;
 import com.primaryBank.PrimaryBank.model.Transaction;
 import com.primaryBank.PrimaryBank.service.PaymentService;
 import org.hibernate.exception.ConstraintViolationException;
@@ -33,7 +34,7 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
     @PostMapping(path = "/auth")
-    public AuthResponse auth(@RequestBody AuthRequest authRequest) {
+    public AuthResponse auth(@RequestBody AuthRequest authRequest) throws Exception {
         Integer paymentId = paymentService.clientExists(authRequest);
         if(paymentId != null){
             AuthResponse response = new AuthResponse(paymentId, "success", authRequest.getAmount(), null);
@@ -70,7 +71,7 @@ public class PaymentController {
     }
 
     @PostMapping(path = "/generateQRcode")
-    public AuthResponse generateQRcode(@RequestBody AuthRequest authRequest) throws IOException, WriterException {
+    public AuthResponse generateQRcode(@RequestBody AuthRequest authRequest) throws Exception {
         return paymentService.generateQRcode(authRequest);
     }
 
@@ -83,5 +84,4 @@ public class PaymentController {
     public PccResponse issuerBankPaymentQRcode(@RequestBody PccRequest pccRequest){
         return paymentService.issuerBankPaymentQRcode(pccRequest);
     }
-
 }

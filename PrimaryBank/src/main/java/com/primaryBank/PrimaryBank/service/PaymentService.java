@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import java.io.File;
 
+import javax.crypto.SecretKey;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -49,14 +50,21 @@ public class PaymentService {
     @Autowired
     private ApiGatewayClient apiGatewayClient;
 
+    @Autowired
+    private KeyStoreService keyStoreService;
+
     @Value("${bank.code}")
     private String bankCode;
 
     @Value("${bank.account}")
     private String bankAccountCode;
 
-    public Integer clientExists(AuthRequest authRequest){
+    public Integer clientExists(AuthRequest authRequest) throws Exception {
         Client client = clientRepository.findClientByMerchantId(authRequest.getMerchantId());
+
+        SecretKey key = keyStoreService.getKey(client.getMerchantId(), client.getPan());
+        client.setMerchantPassword(keyStoreService.decrypt(client.getMerchantPassword(), key));
+
         if(client != null && client.getMerchantPassword().equals(authRequest.getMerchantPassword())){
             Transaction transaction = new Transaction(-1, authRequest.getMerchantOrderId(), authRequest.getMerchantId(),
                     authRequest.getAmount(), authRequest.getMerchantTimeStamp(), null, null, null);
@@ -76,9 +84,7 @@ public class PaymentService {
             }
 
             if(paymentRequest.getPan().substring(0, 6).equals(bankCode)) {
-                //Transaction transaction = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
 
-                //  this.executePayment(); //implementirati skidanje sa racuna kupca i dodavanje na racun prodavca
                 ValidationDto creditIsValid = isCreditCardValid(paymentRequest);
                 if (!creditIsValid.isValid()) {
                     transaction.setAcquiererTimestamp(LocalDateTime.now());
@@ -97,10 +103,8 @@ public class PaymentService {
                     return new PaymentResponse(transaction.getMerchantOrderId(), transaction.getPaymentId(),
                             transaction1.getAcquiererTimestamp(), PaymentStatus.ERROR, null);
                 }
-
-//            return new PaymentResponse();// skontati sta vratiti
             } else {
-                //Transaction transaction = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
+
                 transaction.setAcquiererTimestamp(LocalDateTime.now());
                 transactionRepository.save(transaction);
 
@@ -127,13 +131,13 @@ public class PaymentService {
                             response.getAcquirerTimestamp(), response.getPaymentStatus(), response.getIssuerOrderId());
                 }
             }
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             return new PaymentResponse(null, paymentRequest.getPaymentId(),
                     LocalDateTime.now(), PaymentStatus.ERROR, null);
         }
     }
 
-    public ValidationDto isCreditCardValid(PaymentRequest paymentRequest) {
+    public ValidationDto isCreditCardValid(PaymentRequest paymentRequest) throws Exception {
         Optional<Client> optionalClient = clientRepository.searchClientByPan(paymentRequest.getPan());
         Transaction transaction = transactionRepository.findTransactionByPaymentId(paymentRequest.getPaymentId());
 
@@ -143,10 +147,12 @@ public class PaymentService {
         }
             Client client = optionalClient.get();
 
-        if (!paymentRequest.getCardHolderName().equals(client.getCardHolderName()) ||
+            SecretKey key = keyStoreService.getKey(client.getMerchantId(), client.getPan());
+
+        if (!paymentRequest.getCardHolderName().equals(keyStoreService.decrypt(client.getCardHolderName(), key)) ||
                 !paymentRequest.getPan().equals(client.getPan()) ||
-                !paymentRequest.getCvv().equals(client.getCvv()) ||
-                !isCreditCardDateValid(client.getExpDate())){
+                !paymentRequest.getCvv().equals(keyStoreService.decrypt(client.getCvv(), key)) ||
+                !isCreditCardDateValid(keyStoreService.decrypt(client.getExpDate(), key))){
 
             return new ValidationDto(false, null);
         }
@@ -192,14 +198,15 @@ public class PaymentService {
     public PccResponse issuerBankPayment(PccRequest pccRequest) {
         try {
             Client client = clientRepository.findClientByPan(pccRequest.getPan());
+            SecretKey key = keyStoreService.getKey(client.getMerchantId(), client.getPan());
 
-            String[] parts = client.getExpDate().split("/");
+            String[] parts = keyStoreService.decrypt(client.getExpDate(), key).split("/");
             YearMonth yearMonth = YearMonth.of(Integer.parseInt(parts[1]), Integer.parseInt(parts[0]));
             int endDay = yearMonth.lengthOfMonth();
             LocalDateTime expDate = LocalDateTime.of(2000 + Integer.parseInt(parts[1]), Integer.parseInt(parts[0]), endDay,
                     23, 59, 59);
 
-            if(client != null && client.getExpDate().equals(pccRequest.getExpDate()) && client.getCvv().equals(pccRequest.getCvv())
+            if(client != null && keyStoreService.decrypt(client.getExpDate(), key).equals(pccRequest.getExpDate()) && keyStoreService.decrypt(client.getCvv(), key).equals(pccRequest.getCvv())
                     && expDate.isAfter(LocalDateTime.now()) && client.getAvailableSum() >= pccRequest.getAmount()) {
 
                 double newSum = client.getAvailableSum() - pccRequest.getAmount();
@@ -215,7 +222,7 @@ public class PaymentService {
                 return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
                         -1, LocalDateTime.now(), PaymentStatus.FAILED);
             }
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
                     -1, LocalDateTime.now(), PaymentStatus.ERROR);
         }
@@ -225,8 +232,13 @@ public class PaymentService {
         return transactionRepository.findAll();
     }
 
-    public AuthResponse generateQRcode(AuthRequest authRequest) throws WriterException, IOException {
+    public AuthResponse generateQRcode(AuthRequest authRequest) throws Exception {
+
         Client client = clientRepository.findClientByMerchantId(authRequest.getMerchantId());
+        SecretKey key = keyStoreService.getKey(client.getMerchantId(), client.getPan());
+        client.setMerchantPassword(keyStoreService.decrypt(client.getMerchantPassword(), key));
+        client.setName(keyStoreService.decrypt(client.getName(), key));
+
         if(client != null && client.getMerchantPassword().equals(authRequest.getMerchantPassword())){
             Transaction transaction = new Transaction(-1, authRequest.getMerchantOrderId(), authRequest.getMerchantId(),
                     authRequest.getAmount(), authRequest.getMerchantTimeStamp(), null, null, null);

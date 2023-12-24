@@ -46,7 +46,7 @@ public class ProxyController {
 
     //ovo je redirect kada se radi auth (pre placanja)
     @PostMapping(path = "/redirect")
-    public AuthResponse redirectByPaymentType(@RequestBody AuthRequest authRequest) throws IOException, WriterException {
+    public AuthResponse redirectByPaymentType(@RequestBody AuthRequest authRequest) throws Exception {
         if(authRequest.getPaymentType().equals(PaymentType.CREDIT_CARD)) {
             return primaryBankClient.auth(authRequest);
         } else if (authRequest.getPaymentType().equals(PaymentType.QR_CODE)) {
