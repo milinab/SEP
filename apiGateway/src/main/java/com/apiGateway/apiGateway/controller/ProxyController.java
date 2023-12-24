@@ -39,6 +39,10 @@ public class ProxyController {
 
     @Autowired
     private SecondaryBankClient secondaryBankClient;
+
+    @Autowired
+    private PayPalClient payPalClient;
+
     @PostMapping(path = "/buy")
     public ResponseEntity<AuthResponse> buy(@RequestBody BuyRequest buyRequest) {
         return pspClient.buy(buyRequest);
@@ -51,8 +55,9 @@ public class ProxyController {
             return primaryBankClient.auth(authRequest);
         } else if (authRequest.getPaymentType().equals(PaymentType.QR_CODE)) {
             return primaryBankClient.generateQRcode(authRequest);
-        } else if (authRequest.getPaymentType().equals(PaymentType.PAYPAL)) {
-            return null;
+        } else if (PaymentType.PAYPAL.equals(authRequest.getPaymentType())) {
+            PaymentOrder paymentOrder = payPalClient.createPayment(authRequest.amount);
+            return new AuthResponse(paymentOrder.getPayId(), paymentOrder.getRedirectUrl(), authRequest.amount, null);
         } else {
             return null;
         }
