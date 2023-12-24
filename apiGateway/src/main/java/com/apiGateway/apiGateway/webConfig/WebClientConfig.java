@@ -116,4 +116,28 @@ public class WebClientConfig {
                 .build();
         return httpServiceProxyFactory.createClient(SecondaryBankClient.class);
     }
+
+    @Bean
+        public WebClient payPalWebClient() {
+
+            HttpClient httpClient = HttpClient.create()
+                    .doOnConnected(conn -> conn
+                            .addHandler(new ReadTimeoutHandler(20)) // 10 sekundi
+                    );
+
+            return WebClient.builder()
+                    .clientConnector(new ReactorClientHttpConnector(httpClient))
+                    .baseUrl("http://paypal")
+                    .filter(filterFunction)
+                    .build();
+        }
+
+        @Bean
+        public PayPalClient payPalClient() {
+            HttpServiceProxyFactory httpServiceProxyFactory
+                    = HttpServiceProxyFactory
+                    .builder(WebClientAdapter.forClient(payPalWebClient()))
+                    .build();
+            return httpServiceProxyFactory.createClient(PayPalClient.class);
+        }
 }
