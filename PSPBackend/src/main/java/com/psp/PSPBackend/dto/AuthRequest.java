@@ -1,5 +1,6 @@
 package com.psp.PSPBackend.dto;
 
+import com.psp.PSPBackend.enums.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,4 +19,5 @@ public class AuthRequest {
     private Double amount;
     private Long merchantOrderId;
     private LocalDateTime merchantTimeStamp;
+    private PaymentType paymentType;
 }

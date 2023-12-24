@@ -1,7 +1,9 @@
 package com.primaryBank.PrimaryBank.webConfig;
 
-import com.primaryBank.PrimaryBank.webClient.PccClient;
+import com.primaryBank.PrimaryBank.webClient.ApiGatewayClient;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancedExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -12,9 +14,11 @@ import reactor.netty.http.client.HttpClient;
 
 @Configuration
 public class WebClientConfig {
+    @Autowired
+    private LoadBalancedExchangeFilterFunction filterFunction;
 
     @Bean
-    public WebClient pccWebClient() {
+    public WebClient apiGatewayWebClient() {
 
         HttpClient httpClient = HttpClient.create()
                 .doOnConnected(conn -> conn
@@ -23,16 +27,17 @@ public class WebClientConfig {
 
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .baseUrl("http://localhost:8083")
+                .baseUrl("http://apigateway")
+                .filter(filterFunction)
                 .build();
     }
 
     @Bean
-    public PccClient primaryBankClient() {
+    public ApiGatewayClient apiGatewayClient() {
         HttpServiceProxyFactory httpServiceProxyFactory
                 = HttpServiceProxyFactory
-                .builder(WebClientAdapter.forClient(pccWebClient()))
+                .builder(WebClientAdapter.forClient(apiGatewayWebClient()))
                 .build();
-        return httpServiceProxyFactory.createClient(PccClient.class);
+        return httpServiceProxyFactory.createClient(ApiGatewayClient.class);
     }
 }

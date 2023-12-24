@@ -8,6 +8,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {TransactionSuccessComponent} from "./transaction-success/transaction-success.component";
 import {TransactionFailedComponent} from "./transaction-failed/transaction-failed.component";
 import {TransactionErrorComponent} from "./transaction-error/transaction-error.component";
+import { QRcodePaymentComponent } from './qrcode-payment/qrcode-payment.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import {TransactionErrorComponent} from "./transaction-error/transaction-error.c
     CardPaymentComponent,
     TransactionSuccessComponent,
     TransactionFailedComponent,
-    TransactionErrorComponent
+    TransactionErrorComponent,
+    QRcodePaymentComponent
   ],
     imports: [
         CommonModule,

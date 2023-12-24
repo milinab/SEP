@@ -8,8 +8,11 @@ import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 
 @HttpExchange
-public interface PrimaryBankClient {
+public interface ApiGatewayClient {
 
-    @PostExchange("/api/payment/issuerPayment")
-    public PccResponse issuerBankPayment(@RequestBody PccRequest authRequest);
+    @PostExchange("/api/proxy/redirecToSecondaryBank")
+    public PccResponse redirecToSecondaryBank(@RequestBody PccRequest pccRequest);
+
+    @PostExchange("/api/proxy/redirecToSecondaryBankQRcode")
+    public PccResponse redirecToSecondaryBankQRcode(@RequestBody PccRequest pccRequest);
 }

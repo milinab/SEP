@@ -5,6 +5,7 @@ import {PaymentService} from "../../services/payment.service";
 import {Transaction} from "../../model/transaction.model";
 import {PaymentStatus} from "../../enums/paymentStatus.enum";
 import {PaymentResponse} from "../../dtos/paymentResponse";
+import { PaymentType } from '../../enums/paymentType.enum';
 
 @Component({
   selector: 'app-home',
@@ -69,7 +70,9 @@ export class CardPaymentComponent implements OnInit {
         pan: formValue.cardNumber,
         expDate: formValue.expiryDate,
         cvv: formValue.cvv,
-        cardHolderName: formValue.cardHolderName}).subscribe(
+        cardHolderName: formValue.cardHolderName,
+        accountNumber:'',
+        paymentType: PaymentType.CREDIT_CARD }).subscribe(
         (response) => {
           this.payResponse = response
           if(this.payResponse.paymentStatus == "SUCCESS") {

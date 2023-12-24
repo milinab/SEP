@@ -2,6 +2,8 @@ package com.psp.PSPBackend.model;
 
 import com.psp.PSPBackend.enums.PaymentStatus;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,6 +22,9 @@ import java.time.LocalDateTime;
 public class Transaction {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private Integer paymentId;
     private Long merchantOrderId;
     private String merchantId;
     private Double amount;

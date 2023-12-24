@@ -1,5 +1,6 @@
 package com.primaryBank.PrimaryBank.dto;
 
+import com.primaryBank.PrimaryBank.enums.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,4 +27,6 @@ public class PaymentRequest {
 
     @Pattern(regexp = "^[a-zA-Z\\s]*$", message = "Cardholder name must contain only letters and spaces")
     private String cardHolderName;
+    private String accountNumber;
+    private PaymentType paymentType;
 }

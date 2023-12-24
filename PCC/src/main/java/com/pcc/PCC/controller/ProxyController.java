@@ -5,7 +5,7 @@ import com.pcc.PCC.dto.PccResponse;
 import com.pcc.PCC.enums.PaymentStatus;
 import com.pcc.PCC.model.Transaction;
 import com.pcc.PCC.repository.TransactionRepository;
-import com.pcc.PCC.webClient.PrimaryBankClient;
+import com.pcc.PCC.webClient.ApiGatewayClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,13 +23,16 @@ import java.time.LocalDateTime;
 public class ProxyController {
 
     @Autowired
-    private PrimaryBankClient primaryBankClient;
+    private TransactionRepository transactionRepository;
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private ApiGatewayClient apiGatewayClient;
 
     @Value("${bank.code}")
     private String bankCode;
+
+    @Value("${bank.account}")
+    private String bankAccountCode;
     @PostMapping("/sendToIssuerBank")
     public PccResponse sendToIssuerBank(@RequestBody PccRequest pccRequest) {
         try {
@@ -38,7 +41,33 @@ public class ProxyController {
                         null, null, null);
                 transactionRepository.save(transaction);
 
-                PccResponse response = primaryBankClient.issuerBankPayment(pccRequest);
+                PccResponse response = apiGatewayClient.redirecToSecondaryBank(pccRequest);
+
+                transaction.setIssuerOrderId(response.getIssuerOrderId());
+                transaction.setIssuerTimestamp(response.getIssuerTimestamp());
+                transaction.setPaymentStatus(response.getPaymentStatus());
+                transactionRepository.save(transaction);
+
+                return response;
+            } else {
+                return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(), -1, null,
+                        PaymentStatus.ERROR);
+            }
+        } catch (NullPointerException e) {
+            return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(), -1, null,
+                    PaymentStatus.ERROR);
+        }
+    }
+
+    @PostMapping("/sendToIssuerBankQRcode")
+    public PccResponse sendToIssuerBankQRcode(@RequestBody PccRequest pccRequest) {
+        try {
+            if(pccRequest.getAccountNumber().substring(0, 3).equals(bankAccountCode)) {
+                Transaction transaction = new Transaction(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
+                        null, null, null);
+                transactionRepository.save(transaction);
+
+                PccResponse response = apiGatewayClient.redirecToSecondaryBankQRcode(pccRequest);
 
                 transaction.setIssuerOrderId(response.getIssuerOrderId());
                 transaction.setIssuerTimestamp(response.getIssuerTimestamp());

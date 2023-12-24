@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha256-...." crossorigin="anonymous" />
+  <title>Payment Form</title>
+</head>
+<body>
+
+<form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+  <div class="column1">
+
+    <div class="form-group" *ngIf="qrCodeImageUrl">
+      <img [src]="qrCodeImageUrl" alt="QR Code">
+    </div>
+
+    <div class="form-group">
+      <label for="accountNumber">Account Number<span>*</span>:</label>
+      <input type="password" id="accountNumber" formControlName="accountNumber" placeholder="Enter an account number"
+             [ngClass]="{ 'is-invalid': submitted && paymentForm.get('accountNumber')?.errors }" required>
+      <div *ngIf="submitted && paymentForm.get('accountNumber')?.errors" class="invalid-feedback">
+        Please enter an account number.
+      </div>
+    </div>
+  </div>
+
+  <div class="column2">
+    <button type="submit">
+      <i class="fa-solid fa-credit-card fa-lg"></i>
+      Confirm & Pay Your Order {{ displayedAmount | currency }}
+    </button>
+  </div>
+
+</form>
+
+</body>
+</html>
