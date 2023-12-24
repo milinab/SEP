@@ -3,12 +3,14 @@ package com.apiGateway.apiGateway.controller;
 import com.apiGateway.apiGateway.dto.AuthRequest;
 import com.apiGateway.apiGateway.dto.AuthResponse;
 import com.apiGateway.apiGateway.dto.BuyRequest;
+import com.apiGateway.apiGateway.dto.PaymentOrder;
 import com.apiGateway.apiGateway.dto.PaymentRequest;
 import com.apiGateway.apiGateway.dto.PaymentResponse;
 import com.apiGateway.apiGateway.dto.PccRequest;
 import com.apiGateway.apiGateway.dto.PccResponse;
 import com.apiGateway.apiGateway.enums.PaymentType;
 import com.apiGateway.apiGateway.webClient.PSPClient;
+import com.apiGateway.apiGateway.webClient.PayPalClient;
 import com.apiGateway.apiGateway.webClient.PccClient;
 import com.apiGateway.apiGateway.webClient.PrimaryBankClient;
 import com.apiGateway.apiGateway.webClient.SecondaryBankClient;
@@ -56,8 +58,8 @@ public class ProxyController {
         } else if (authRequest.getPaymentType().equals(PaymentType.QR_CODE)) {
             return primaryBankClient.generateQRcode(authRequest);
         } else if (PaymentType.PAYPAL.equals(authRequest.getPaymentType())) {
-            PaymentOrder paymentOrder = payPalClient.createPayment(authRequest.amount);
-            return new AuthResponse(paymentOrder.getPayId(), paymentOrder.getRedirectUrl(), authRequest.amount, null);
+            PaymentOrder paymentOrder = payPalClient.createPayment(authRequest.getAmount());
+            return new AuthResponse(-1, paymentOrder.getRedirectUrl(), authRequest.getAmount(), null);
         } else {
             return null;
         }

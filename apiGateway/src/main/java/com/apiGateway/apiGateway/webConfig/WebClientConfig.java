@@ -1,6 +1,7 @@
 package com.apiGateway.apiGateway.webConfig;
 
 import com.apiGateway.apiGateway.webClient.PSPClient;
+import com.apiGateway.apiGateway.webClient.PayPalClient;
 import com.apiGateway.apiGateway.webClient.PccClient;
 import com.apiGateway.apiGateway.webClient.PrimaryBankClient;
 import com.apiGateway.apiGateway.webClient.SecondaryBankClient;
