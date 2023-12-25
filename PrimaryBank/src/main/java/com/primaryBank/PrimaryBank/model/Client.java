@@ -1,5 +1,6 @@
 package com.primaryBank.PrimaryBank.model;
 
+import com.primaryBank.PrimaryBank.dto.ClientDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Generated;
@@ -16,6 +17,18 @@ import javax.validation.constraints.Pattern;
 @Entity(name = "clients")
 @Table(name = "clients")
 public class Client {
+
+    public Client(ClientDto dto) {
+        this.merchantId = dto.getMerchantId();
+        this.merchantPassword = dto.getMerchantPassword();
+        this.pan = dto.getPan();
+        this.expDate = dto.getExpDate();
+        this.cvv = dto.getCvv();
+        this.cardHolderName = dto.getCardHolderName();
+        this.accountNumber = dto.getAccountNumber();
+        this.name = dto.getName();
+    }
+
 
     @Id
     private String merchantId;

@@ -2,11 +2,7 @@ package com.apiGateway.apiGateway.controller;
 
 import com.apiGateway.apiGateway.dto.*;
 import com.apiGateway.apiGateway.enums.PaymentType;
-import com.apiGateway.apiGateway.webClient.PSPClient;
-import com.apiGateway.apiGateway.webClient.PayPalClient;
-import com.apiGateway.apiGateway.webClient.PccClient;
-import com.apiGateway.apiGateway.webClient.PrimaryBankClient;
-import com.apiGateway.apiGateway.webClient.SecondaryBankClient;
+import com.apiGateway.apiGateway.webClient.*;
 import com.google.zxing.WriterException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,7 +32,10 @@ public class ProxyController {
     private SecondaryBankClient secondaryBankClient;
 
     @Autowired
+
     private PayPalClient payPalClient;
+
+    private CryptoPaymentClient cryptoPaymentClient;
 
     @PostMapping(path = "/buy")
     public ResponseEntity<AuthResponse> buy(@RequestBody BuyRequest buyRequest) {
@@ -45,7 +44,7 @@ public class ProxyController {
 
     //ovo je redirect kada se radi auth (pre placanja)
     @PostMapping(path = "/redirect")
-    public AuthResponse redirectByPaymentType(@RequestBody AuthRequest authRequest) throws IOException, WriterException {
+    public AuthResponse redirectByPaymentType(@RequestBody AuthRequest authRequest) throws Exception {
         if(authRequest.getPaymentType().equals(PaymentType.CREDIT_CARD)) {
             return primaryBankClient.auth(authRequest);
         } else if (authRequest.getPaymentType().equals(PaymentType.QR_CODE)) {
@@ -53,6 +52,13 @@ public class ProxyController {
         } else if (PaymentType.PAYPAL.equals(authRequest.getPaymentType())) {
             PaymentOrder paymentOrder = payPalClient.createPayment(authRequest.getAmount());
             return new AuthResponse(-1, paymentOrder.getRedirectUrl(), authRequest.getAmount(), null);
+        } else if (authRequest.getPaymentType().equals(PaymentType.CRYPTO)){
+            CryptoPayingRequest cryptoRequest = new CryptoPayingRequest();
+            cryptoRequest.setAmount(authRequest.getAmount());
+            AuthResponse response;
+            String paymentUrl = cryptoPaymentClient.pay(cryptoRequest);
+            response = new AuthResponse(-1, paymentUrl, authRequest.getAmount(), null);
+            return response;
         } else {
             return null;
         }

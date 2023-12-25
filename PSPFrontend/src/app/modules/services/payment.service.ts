@@ -11,6 +11,7 @@ export class PaymentService {
   private psp = 'http://localhost:8080/';
   private primaryBank = 'http://localhost:8081/';
   private apiGateway = 'http://localhost:8084/';
+  private crypto = 'http://localhost:8085/'
   headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
 
 
@@ -31,4 +32,5 @@ export class PaymentService {
   completePayment(token: any): Observable<any> {
     return this.http.post(this.apiGateway + 'api/proxy/completePaypalPayment', token)
   }
+
 }

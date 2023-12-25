@@ -14,7 +14,7 @@ import org.springframework.web.service.annotation.PostExchange;
 
 public interface ApiGatewayClient {
     @PostExchange("/api/proxy/redirect")
-    public AuthResponse redirectByPaymentType(@RequestBody AuthRequest authRequest);
+    public AuthResponse redirectByPaymentType(@RequestBody AuthRequest authRequest) throws Exception;
 
     @PostExchange("/api/proxy/redirectPayment")
     public PaymentResponse redirectPayment(@RequestBody PaymentRequest paymentRequest);
