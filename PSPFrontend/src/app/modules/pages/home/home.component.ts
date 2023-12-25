@@ -90,6 +90,18 @@ export class HomeComponent implements OnInit {
         console.log('Account data not valid.');
       }
     );
+  }
+
+  payPalPayment() {
+    this.paymentService.payment({merchantId: this.merchantId, amount: this.amount, merchantOrderId: this.merchantOrderId, paymentType: PaymentType.PAYPAL}).subscribe(
+      (response) => {
+        this.authResponse = response;
+        window.location.href = this.authResponse?.paymentURL;
+      },
+      (error) => {
+        console.log('Account data not valid.');
+      }
+    )
 
   }
 

@@ -3,7 +3,6 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {PaymentService} from "../../services/payment.service";
 import {Transaction} from "../../model/transaction.model";
-import {PaymentStatus} from "../../enums/paymentStatus.enum";
 import {PaymentResponse} from "../../dtos/paymentResponse";
 import { PaymentType } from '../../enums/paymentType.enum';
 
@@ -57,15 +56,6 @@ export class CardPaymentComponent implements OnInit {
 
     if (this.paymentForm.valid) {
       const formValue = this.paymentForm.value;
-      // this.paymentService.validateCard(this.paymentForm.value).subscribe(
-      //   (response) => {
-      //
-      //     console.log('Form is valid.');
-      //   },
-      //   (error) => {
-      //     console.log('Form is not valid.');
-      //   }
-      // );
       this.paymentService.pay({paymentId: this.paymentId,
         pan: formValue.cardNumber,
         expDate: formValue.expiryDate,
