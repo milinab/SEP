@@ -49,7 +49,7 @@ export class QRcodePaymentComponent implements OnInit {
     });
 
     this.paymentForm = this.formBuilder.group({
-      accountNumber: ['', [Validators.required]], //letters
+      accountNumber: ['', [Validators.required, Validators.pattern(/^\d{18}$/)]], //letters
     });
   }
 
