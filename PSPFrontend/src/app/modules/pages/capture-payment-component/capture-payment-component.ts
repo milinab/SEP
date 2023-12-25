@@ -1,8 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {FormBuilder} from "@angular/forms";
 import {PaymentService} from "../../services/payment.service";
-import {PaymentType} from "../../enums/paymentType.enum";
 import {CompletedOrder} from "../../dtos/completedOrder";
 
 @Component({
@@ -21,12 +20,10 @@ export class CapturePaymentComponent implements OnInit {
   ngOnInit(): void {
     const currentUrl = new URL(window.location.href);
     const token = currentUrl.searchParams.get('token');
-    console.log('Token:', token);
     this.paymentService.completePayment(token).subscribe(
       (response) => {
         this.completedOrder = response;
-        console.log(this.completedOrder);
-        if(this.completedOrder?.status == "success") {
+        if("success" == this.completedOrder?.status) {
           this.router.navigate(['/transaction-success'])
         } else {
           this.router.navigate(['/transaction-failed'])

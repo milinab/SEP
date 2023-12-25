@@ -96,10 +96,7 @@ export class HomeComponent implements OnInit {
     this.paymentService.payment({merchantId: this.merchantId, amount: this.amount, merchantOrderId: this.merchantOrderId, paymentType: PaymentType.PAYPAL}).subscribe(
       (response) => {
         this.authResponse = response;
-        //const toCard = { paymentId: this.authResponse.paymentId, amount: this.authResponse.amount};
-          //this.router.navigate(['/qrcode-payment'], { queryParams: { myData: JSON.stringify(toCard) } });
-        this.router.navigate([this.authResponse?.paymentURL])
-        //window.location.href = this.authResponse?.paymentURL;
+        window.location.href = this.authResponse?.paymentURL;
       },
       (error) => {
         console.log('Account data not valid.');

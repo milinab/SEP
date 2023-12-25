@@ -1,6 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-cancel-payment',
@@ -9,11 +7,9 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 })
 export class CancelPaymentComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute,
-              private formBuilder: FormBuilder) { }
+  constructor() { }
 
   ngOnInit(): void {
-
   }
 
   goBack() {
