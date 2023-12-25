@@ -62,7 +62,7 @@ public class PaymentController {
                 return new ResponseEntity<>(new AuthResponse(-1, "failed", buyRequest.getAmount(), null),
                         HttpStatus.BAD_REQUEST);
             }
-        } catch (NullPointerException e){
+        } catch (Exception e){
             return new ResponseEntity<>(new AuthResponse(-1, "error", buyRequest.getAmount(), null),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
