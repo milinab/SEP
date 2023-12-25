@@ -27,8 +27,8 @@ public class PaymentService {
         PurchaseUnitRequest purchaseUnitRequest = new PurchaseUnitRequest().amountWithBreakdown(amountBreakdown);
         orderRequest.purchaseUnits(List.of(purchaseUnitRequest));
         ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl("https://localhost:4200/capture")
-                .cancelUrl("https://localhost:4200/cancel");
+                .returnUrl("http://localhost:4200/capture")
+                .cancelUrl("http://localhost:4200/cancel");
         orderRequest.applicationContext(applicationContext);
         OrdersCreateRequest ordersCreateRequest = new OrdersCreateRequest().requestBody(orderRequest);
 

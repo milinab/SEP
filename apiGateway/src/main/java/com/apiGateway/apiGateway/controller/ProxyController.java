@@ -1,13 +1,6 @@
 package com.apiGateway.apiGateway.controller;
 
-import com.apiGateway.apiGateway.dto.AuthRequest;
-import com.apiGateway.apiGateway.dto.AuthResponse;
-import com.apiGateway.apiGateway.dto.BuyRequest;
-import com.apiGateway.apiGateway.dto.PaymentOrder;
-import com.apiGateway.apiGateway.dto.PaymentRequest;
-import com.apiGateway.apiGateway.dto.PaymentResponse;
-import com.apiGateway.apiGateway.dto.PccRequest;
-import com.apiGateway.apiGateway.dto.PccResponse;
+import com.apiGateway.apiGateway.dto.*;
 import com.apiGateway.apiGateway.enums.PaymentType;
 import com.apiGateway.apiGateway.webClient.PSPClient;
 import com.apiGateway.apiGateway.webClient.PayPalClient;
@@ -101,5 +94,10 @@ public class ProxyController {
     @PostMapping(path = "/redirecToSecondaryBankQRcode")
     public PccResponse redirecToSecondaryBankQRcode(@RequestBody PccRequest pccRequest) {
         return secondaryBankClient.issuerBankPaymentQRcode(pccRequest);
+    }
+
+    @PostMapping(path = "/completePaypalPayment")
+    public CompletedOrder buy(@RequestBody String token) {
+        return payPalClient.completePayment(token);
     }
 }

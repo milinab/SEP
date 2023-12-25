@@ -27,4 +27,8 @@ export class PaymentService {
   pay(transaction: any): Observable<any> {
     return this.http.post(this.apiGateway + `api/proxy/pay`, transaction)
   }
+
+  completePayment(token: any): Observable<any> {
+    return this.http.post(this.apiGateway + 'api/proxy/completePaypalPayment', token)
+  }
 }
