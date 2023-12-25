@@ -17,12 +17,12 @@ import java.io.IOException;
 @HttpExchange
 public interface PrimaryBankClient {
     @PostExchange("/api/payment/auth")
-    public AuthResponse auth(@RequestBody AuthRequest authRequest);
+    public AuthResponse auth(@RequestBody AuthRequest authRequest) throws Exception;
 
     @PostExchange("/api/payment/pay")
     public PaymentResponse pay(@RequestBody PaymentRequest paymentRequest);
     @PostExchange("/api/payment/generateQRcode")
-    public AuthResponse generateQRcode(@RequestBody AuthRequest authRequest) throws IOException, WriterException;
+    public AuthResponse generateQRcode(@RequestBody AuthRequest authRequest) throws Exception;
 
     @PostExchange("/api/payment/payQRcode")
     public PaymentResponse payQRcode(@RequestBody PaymentRequest paymentRequest);
