@@ -1,9 +1,6 @@
 package com.apiGateway.apiGateway.webConfig;
 
-import com.apiGateway.apiGateway.webClient.PSPClient;
-import com.apiGateway.apiGateway.webClient.PccClient;
-import com.apiGateway.apiGateway.webClient.PrimaryBankClient;
-import com.apiGateway.apiGateway.webClient.SecondaryBankClient;
+import com.apiGateway.apiGateway.webClient.*;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancedExchangeFilterFunction;
@@ -115,5 +112,29 @@ public class WebClientConfig {
                 .builder(WebClientAdapter.forClient(secondaryBankWebClient()))
                 .build();
         return httpServiceProxyFactory.createClient(SecondaryBankClient.class);
+    }
+
+    @Bean
+    public WebClient cryptoPaymentWebClient() {
+
+        HttpClient httpClient = HttpClient.create()
+                .doOnConnected(conn -> conn
+                        .addHandler(new ReadTimeoutHandler(20)) // 10 sekundi
+                );
+
+        return WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .baseUrl("http://crypto")
+                .filter(filterFunction)
+                .build();
+    }
+
+    @Bean
+    public CryptoPaymentClient cryptoPaymentClient() {
+        HttpServiceProxyFactory httpServiceProxyFactory
+                = HttpServiceProxyFactory
+                .builder(WebClientAdapter.forClient(cryptoPaymentWebClient()))
+                .build();
+        return httpServiceProxyFactory.createClient(CryptoPaymentClient.class);
     }
 }

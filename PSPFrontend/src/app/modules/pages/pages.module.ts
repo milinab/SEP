@@ -9,6 +9,7 @@ import {TransactionSuccessComponent} from "./transaction-success/transaction-suc
 import {TransactionFailedComponent} from "./transaction-failed/transaction-failed.component";
 import {TransactionErrorComponent} from "./transaction-error/transaction-error.component";
 import { QRcodePaymentComponent } from './qrcode-payment/qrcode-payment.component';
+import { CryptoPaymentComponent } from './crypto-payment/crypto-payment.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { QRcodePaymentComponent } from './qrcode-payment/qrcode-payment.componen
     TransactionSuccessComponent,
     TransactionFailedComponent,
     TransactionErrorComponent,
-    QRcodePaymentComponent
+    QRcodePaymentComponent,
+    CryptoPaymentComponent
   ],
     imports: [
         CommonModule,

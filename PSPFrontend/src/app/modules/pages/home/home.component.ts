@@ -21,7 +21,12 @@ export class HomeComponent implements OnInit {
     merchantOrderId: 0,
     paymentType: PaymentType.CREDIT_CARD
   }
-  authResponse: AuthResponse | undefined
+  authResponse: AuthResponse = {
+    paymentId: 0,
+    paymentURL: '',
+    amount: 0,
+    qrCode: ''
+  }
 
   constructor(private router: Router, private route: ActivatedRoute, private paymentService: PaymentService) { }
 
@@ -86,6 +91,21 @@ export class HomeComponent implements OnInit {
       }
     );
 
+  }
+
+  cryptoPayment(){
+    this.paymentService.payment({merchantId: this.merchantId, amount: this.amount, merchantOrderId: this.merchantOrderId, paymentType: PaymentType.CRYPTO}).subscribe(
+      (response) => {
+        this.authResponse = response;
+        //const toCard = { paymentId: this.authResponse.paymentId, amount: this.authResponse.amount};
+          //this.router.navigate(['/qrcode-payment'], { queryParams: { myData: JSON.stringify(toCard) } });
+        //this.router.navigate([this.authResponse?.paymentURL])
+        window.location.href = this.authResponse?.paymentURL;
+      },
+      (error) => {
+        console.log('Account data not valid.');
+      }
+    )
   }
 
 }
