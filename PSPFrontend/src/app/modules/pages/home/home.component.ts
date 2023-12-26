@@ -4,6 +4,7 @@ import {PaymentService} from "../../services/payment.service";
 import {BuyRequest} from "../../dtos/buyRequest";
 import {PaymentType} from "../../enums/paymentType.enum";
 import {AuthResponse} from "../../dtos/AuthResponse";
+import { RegistrationService } from '../../services/registration.service';
 
 @Component({
   selector: 'app-home',
@@ -28,7 +29,12 @@ export class HomeComponent implements OnInit {
     qrCode: ''
   }
 
-  constructor(private router: Router, private route: ActivatedRoute, private paymentService: PaymentService) { }
+  creditCardEnabled: boolean = false;
+  qrCodeEnabled: boolean = false;
+  paypalEnabled: boolean = false;
+  cryptoEnabled: boolean = false;
+
+  constructor(private router: Router, private route: ActivatedRoute, private paymentService: PaymentService,private registrationService: RegistrationService) { }
 
   // ngOnInit(): void {
   //   const myData = localStorage.getItem('myData');
@@ -49,6 +55,21 @@ export class HomeComponent implements OnInit {
         this.merchantId = data.merchantId;
         this.amount = data.amount;
         this.merchantOrderId = data.merchantOrderId;
+
+        this.registrationService.getClient(this.merchantId).subscribe(
+          (response) => {
+            console.log("Agencija:")
+            console.log(response)
+            this.creditCardEnabled = response.creditCardEnabled;
+            this.qrCodeEnabled = response.qrCodeEnabled;
+            this.paypalEnabled = response.paypalEnabled;
+            this.cryptoEnabled = response.cryptoEnabled;
+          },
+          (error) => {
+            console.log('Failed get.');
+          }
+        );
+
       } else {
         console.log('Podaci nisu pronađeni u query parametrima.');
       }

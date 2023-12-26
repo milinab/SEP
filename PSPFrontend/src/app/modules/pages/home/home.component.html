@@ -18,22 +18,22 @@
   <h2>Choose your payment option</h2>
 
   <div class="payment-options">
-    <div class="payment-option" (click)="cardPayment()">
+    <div *ngIf="creditCardEnabled" class="payment-option" (click)="cardPayment()">
       <i class="fa-solid fa-credit-card fa-xl"></i>
       <p>Payment via Credit Card</p>
     </div>
 
-    <div class="payment-option" (click)="qrCodePayment()">
+    <div *ngIf="qrCodeEnabled" class="payment-option" (click)="qrCodePayment()">
       <i class="fa-solid fa-qrcode fa-xl"></i>
       <p>Payment via QR Code</p>
     </div>
 
-    <div class="payment-option" (click)="payPalPayment()">
+    <div *ngIf="paypalEnabled" class="payment-option" (click)="payPalPayment()">
       <i class="fa-brands fa-cc-paypal fa-xl"></i>
       <p>Payment via PayPal</p>
     </div>
 
-    <div class="payment-option" (click)="cryptoPayment()">
+    <div *ngIf="cryptoEnabled" class="payment-option" (click)="cryptoPayment()">
       <i class="fa-brands fa-bitcoin fa-xl"></i>
       <p>Payment via Bitcoin</p>
     </div>

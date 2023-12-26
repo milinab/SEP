@@ -92,13 +92,19 @@ public class PaymentController {
     }
 
 
-    @PutMapping("/{clientId}/payment-methods")
+    @PostMapping("/payment-methods")
     public ResponseEntity<Client> updatePaymentMethods(
-            @PathVariable String merchantId,
             @RequestBody ClientDto clientDto) {
 
-        Client updatedClient = clientService.updatePaymentMethods(merchantId, clientDto.getCreditCardEnabled(), clientDto.getQrCodeEnabled(),
+        Client updatedClient = clientService.updatePaymentMethods(clientDto.getMerchantId(), clientDto.getPassword(), clientDto.getCreditCardEnabled(), clientDto.getQrCodeEnabled(),
                 clientDto.getPaypalEnabled(), clientDto.getCryptoEnabled());
         return ResponseEntity.ok(updatedClient);
+    }
+
+    @PostMapping("/getClient")
+    public Client getClient(
+            @RequestBody String merchantId) {
+
+        return clientService.getClient(merchantId);
     }
 }

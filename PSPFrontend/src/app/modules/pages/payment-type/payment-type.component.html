@@ -1,33 +1,25 @@
 <form #paymentForm="ngForm" (ngSubmit)="submitForm(paymentForm)">
     <label>Select Payment Methods:</label>
   
-    <div *ngFor="let method of paymentMethods">
-      <input type="checkbox" id="{{method}}" name="paymentMethods" [(ngModel)]="selectedPaymentMethods" [value]="method">
-      <label for="{{method}}">{{ method }}</label>
-    </div>
-  
-    <!-- Additional fields for selected payment methods -->
-    <div *ngIf="selectedPaymentMethods.includes('creditCard')">
-      <!-- Credit Card Fields -->
-      <label for="creditCardNumber">Credit Card Number:</label>
-      <input type="text" id="creditCardNumber" name="creditCardNumber" ngModel>
-      <!-- Add more credit card fields as needed -->
-    </div>
-  
-    <div *ngIf="selectedPaymentMethods.includes('qrCode')">
-      <!-- QR Code Fields -->
-      <!-- Add fields for QR code payment -->
-    </div>
-  
-    <div *ngIf="selectedPaymentMethods.includes('paypal')">
-      <!-- PayPal Fields -->
-      <!-- Add fields for PayPal payment -->
-    </div>
-  
-    <div *ngIf="selectedPaymentMethods.includes('crypto')">
-      <!-- Crypto Fields -->
-      <!-- Add fields for crypto payment -->
-    </div>
+    <input type="text" id="merchantId" name="merchantId" [(ngModel)]="merchantId">
+    <label for="merchantId">Merchant id</label>
+
+    <input type="text" id="password" name="password" [(ngModel)]="password">
+    <label for="password">Password</label>
+
+    
+    <input type="checkbox" id="creditCard" name="creditCard" [(ngModel)]="creditCardEnabled">
+    <label for="creditCard">Credit card</label>
+
+    <input type="checkbox" id="qrCode" name="qrCode" [(ngModel)]="qrCodeEnabled">
+    <label for="qrCode">QR code</label>
+
+    <input type="checkbox" id="paypal" name="paypal" [(ngModel)]="paypalEnabled">
+    <label for="paypal">PayPal</label>
+
+    <input type="checkbox" id="crypto" name="crypto" [(ngModel)]="cryptoEnabled">
+    <label for="crypto">Crypto</label>
+
   
     <button type="submit">Submit</button>
   </form>

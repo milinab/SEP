@@ -10,6 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ClientDto {
+    private String merchantId;
+    private String password;
     private Boolean creditCardEnabled;
     private Boolean qrCodeEnabled;
     private Boolean paypalEnabled;
