@@ -1,11 +1,6 @@
 package com.psp.PSPBackend.controller;
 
-import com.psp.PSPBackend.dto.AuthRequest;
-import com.psp.PSPBackend.dto.AuthResponse;
-import com.psp.PSPBackend.dto.BuyRequest;
-import com.psp.PSPBackend.dto.PaymentRequest;
-import com.psp.PSPBackend.dto.PaymentResponse;
-import com.psp.PSPBackend.dto.TransactionStartsDTO;
+import com.psp.PSPBackend.dto.*;
 import com.psp.PSPBackend.enums.PaymentStatus;
 import com.psp.PSPBackend.enums.PaymentType;
 import com.psp.PSPBackend.model.Client;
@@ -17,14 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -95,6 +87,25 @@ public class PaymentController {
             Transaction issuerTransaction = new Transaction(-1, response.getIssuerOrderId(), response.getMerchantOrderId(),
                      paymentRequest.getPan(), merchantTransaction.getAmount(), merchantTransaction.getMerchantTimeStamp(),
                     response.getPaymentStatus());
+            transactionRepository.save(issuerTransaction);
+        }
+        return response;
+    }
+
+    @PostMapping(path = "/completePayment")
+    public CompletedOrder completePayment(@RequestParam("token") String token) {
+        CompletedOrder response = apiGatewayClient.redirectPayPalPayment(token);
+        Random random = new Random();
+        int max = 105;
+        int min = 1;
+        if("success".equals(response.getStatus())) {
+            Transaction issuerTransaction = new Transaction(-1,
+                    random.nextInt(max - min + 1) + min,
+                    9232948L,
+                    "sb-a0oxf28903556@business.example.com",
+                    250.0,
+                    LocalDateTime.now(),
+                    PaymentStatus.SUCCESS);
             transactionRepository.save(issuerTransaction);
         }
         return response;

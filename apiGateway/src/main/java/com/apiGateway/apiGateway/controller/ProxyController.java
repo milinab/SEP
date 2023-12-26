@@ -103,7 +103,13 @@ public class ProxyController {
     }
 
     @PostMapping(path = "/completePaypalPayment")
-    public CompletedOrder buy(@RequestBody String token) {
+    public CompletedOrder completePayment(@RequestBody String token) {
+        //return payPalClient.completePayment(token);
+        return pspClient.completePayment(token);
+    }
+
+    @PostMapping(path = "/redirectPayPalPayment")
+    public CompletedOrder redirectPayPalPayment(@RequestBody String token) {
         return payPalClient.completePayment(token);
     }
 }

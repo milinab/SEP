@@ -1,12 +1,10 @@
 package com.apiGateway.apiGateway.webClient;
 
-import com.apiGateway.apiGateway.dto.AuthResponse;
-import com.apiGateway.apiGateway.dto.BuyRequest;
-import com.apiGateway.apiGateway.dto.PaymentRequest;
-import com.apiGateway.apiGateway.dto.PaymentResponse;
+import com.apiGateway.apiGateway.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 
@@ -17,4 +15,7 @@ public interface PSPClient {
 
     @PostExchange("/api/payment/pay")
     public PaymentResponse pay(@RequestBody PaymentRequest paymentRequest);
+
+    @PostExchange("/api/payment/completePayment")
+    public CompletedOrder completePayment(@RequestParam("token") String token);
 }
