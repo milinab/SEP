@@ -1,23 +1,17 @@
-package com.psp.PSPBackend.model;
+package com.psp.PSPBackend.dto;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.AllArgsConstructor;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "clients")
-@Table(name = "clients")
-public class Client {
-
-    @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
+@Getter
+@Setter
+public class ClientDto {
     private String merchantId;
-    private String merchantPassword;
+    private String password;
     private Boolean creditCardEnabled;
     private Boolean qrCodeEnabled;
     private Boolean paypalEnabled;

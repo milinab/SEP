@@ -1,11 +1,6 @@
 package com.psp.PSPBackend.controller;
 
-import com.psp.PSPBackend.dto.AuthRequest;
-import com.psp.PSPBackend.dto.AuthResponse;
-import com.psp.PSPBackend.dto.BuyRequest;
-import com.psp.PSPBackend.dto.PaymentRequest;
-import com.psp.PSPBackend.dto.PaymentResponse;
-import com.psp.PSPBackend.dto.TransactionStartsDTO;
+import com.psp.PSPBackend.dto.*;
 import com.psp.PSPBackend.enums.PaymentStatus;
 import com.psp.PSPBackend.enums.PaymentType;
 import com.psp.PSPBackend.model.Client;
@@ -17,11 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -98,5 +89,22 @@ public class PaymentController {
             transactionRepository.save(issuerTransaction);
         }
         return response;
+    }
+
+
+    @PostMapping("/payment-methods")
+    public ResponseEntity<Client> updatePaymentMethods(
+            @RequestBody ClientDto clientDto) {
+
+        Client updatedClient = clientService.updatePaymentMethods(clientDto.getMerchantId(), clientDto.getPassword(), clientDto.getCreditCardEnabled(), clientDto.getQrCodeEnabled(),
+                clientDto.getPaypalEnabled(), clientDto.getCryptoEnabled());
+        return ResponseEntity.ok(updatedClient);
+    }
+
+    @PostMapping("/getClient")
+    public Client getClient(
+            @RequestBody String merchantId) {
+
+        return clientService.getClient(merchantId);
     }
 }

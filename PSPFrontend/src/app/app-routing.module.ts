@@ -6,6 +6,7 @@ import {TransactionSuccessComponent} from "./modules/pages/transaction-success/t
 import {TransactionFailedComponent} from "./modules/pages/transaction-failed/transaction-failed.component";
 import {TransactionErrorComponent} from "./modules/pages/transaction-error/transaction-error.component";
 import { QRcodePaymentComponent } from "./modules/pages/qrcode-payment/qrcode-payment.component";
+import { PaymentTypeComponent } from "./modules/pages/payment-type/payment-type.component";
 import {CapturePaymentComponent} from "./modules/pages/capture-payment-component/capture-payment-component";
 import {CancelPaymentComponent} from "./modules/pages/cancel-payment-component/cancel-payment-component";
 
@@ -16,6 +17,7 @@ const routes: Routes = [
   { path: 'transaction-failed', component: TransactionFailedComponent },
   { path: 'transaction-error', component: TransactionErrorComponent },
   { path: 'qrcode-payment', component: QRcodePaymentComponent },
+  { path: 'payment-type', component: PaymentTypeComponent},
   { path: 'capture', component: CapturePaymentComponent },
   { path: 'cancel', component: CancelPaymentComponent },
 ];

@@ -12,6 +12,7 @@ import { QRcodePaymentComponent } from './qrcode-payment/qrcode-payment.componen
 import {CapturePaymentComponent} from "./capture-payment-component/capture-payment-component";
 import {CancelPaymentComponent} from "./cancel-payment-component/cancel-payment-component";
 import { CryptoPaymentComponent } from './crypto-payment/crypto-payment.component';
+import { PaymentTypeComponent } from './payment-type/payment-type.component';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,8 @@ import { CryptoPaymentComponent } from './crypto-payment/crypto-payment.componen
     TransactionFailedComponent,
     TransactionErrorComponent,
     QRcodePaymentComponent,
+    CryptoPaymentComponent,
+    PaymentTypeComponent,
     CapturePaymentComponent,
     CancelPaymentComponent,
     CryptoPaymentComponent
