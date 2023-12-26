@@ -10,6 +10,7 @@ import {TransactionFailedComponent} from "./transaction-failed/transaction-faile
 import {TransactionErrorComponent} from "./transaction-error/transaction-error.component";
 import { QRcodePaymentComponent } from './qrcode-payment/qrcode-payment.component';
 import { CryptoPaymentComponent } from './crypto-payment/crypto-payment.component';
+import { PaymentTypeComponent } from './payment-type/payment-type.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { CryptoPaymentComponent } from './crypto-payment/crypto-payment.componen
     TransactionFailedComponent,
     TransactionErrorComponent,
     QRcodePaymentComponent,
-    CryptoPaymentComponent
+    CryptoPaymentComponent,
+    PaymentTypeComponent
   ],
     imports: [
         CommonModule,

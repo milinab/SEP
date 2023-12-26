@@ -14,4 +14,16 @@ public class ClientService {
     public Client findClientByMerchantId(String merchantId){
         return clientRepository.findClientByMerchantId(merchantId);
     }
+
+    public Client updatePaymentMethods(String merchantId, Boolean creditCardEnabled, Boolean qrCodeEnabled, Boolean paypalEnabled, Boolean cryptoEnabled) {
+        Client client = clientRepository.findById(merchantId)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+        client.setCreditCardEnabled(creditCardEnabled);
+        client.setQrCodeEnabled(qrCodeEnabled);
+        client.setPaypalEnabled(paypalEnabled);
+        client.setCryptoEnabled(cryptoEnabled);
+
+
+        return clientRepository.save(client);
+    }
 }
