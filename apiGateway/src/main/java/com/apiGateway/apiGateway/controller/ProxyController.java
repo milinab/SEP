@@ -1,17 +1,8 @@
 package com.apiGateway.apiGateway.controller;
 
-import com.apiGateway.apiGateway.dto.AuthRequest;
-import com.apiGateway.apiGateway.dto.AuthResponse;
-import com.apiGateway.apiGateway.dto.BuyRequest;
-import com.apiGateway.apiGateway.dto.PaymentRequest;
-import com.apiGateway.apiGateway.dto.PaymentResponse;
-import com.apiGateway.apiGateway.dto.PccRequest;
-import com.apiGateway.apiGateway.dto.PccResponse;
+import com.apiGateway.apiGateway.dto.*;
 import com.apiGateway.apiGateway.enums.PaymentType;
-import com.apiGateway.apiGateway.webClient.PSPClient;
-import com.apiGateway.apiGateway.webClient.PccClient;
-import com.apiGateway.apiGateway.webClient.PrimaryBankClient;
-import com.apiGateway.apiGateway.webClient.SecondaryBankClient;
+import com.apiGateway.apiGateway.webClient.*;
 import com.google.zxing.WriterException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,6 +30,13 @@ public class ProxyController {
 
     @Autowired
     private SecondaryBankClient secondaryBankClient;
+
+    @Autowired
+
+    private PayPalClient payPalClient;
+
+    private CryptoPaymentClient cryptoPaymentClient;
+
     @PostMapping(path = "/buy")
     public ResponseEntity<AuthResponse> buy(@RequestBody BuyRequest buyRequest) {
         return pspClient.buy(buyRequest);
@@ -51,8 +49,16 @@ public class ProxyController {
             return primaryBankClient.auth(authRequest);
         } else if (authRequest.getPaymentType().equals(PaymentType.QR_CODE)) {
             return primaryBankClient.generateQRcode(authRequest);
-        } else if (authRequest.getPaymentType().equals(PaymentType.PAYPAL)) {
-            return null;
+        } else if (PaymentType.PAYPAL.equals(authRequest.getPaymentType())) {
+            PaymentOrder paymentOrder = payPalClient.createPayment(authRequest.getAmount());
+            return new AuthResponse(-1, paymentOrder.getRedirectUrl(), authRequest.getAmount(), null);
+        } else if (authRequest.getPaymentType().equals(PaymentType.CRYPTO)){
+            CryptoPayingRequest cryptoRequest = new CryptoPayingRequest();
+            cryptoRequest.setAmount(authRequest.getAmount());
+            AuthResponse response;
+            String paymentUrl = cryptoPaymentClient.pay(cryptoRequest);
+            response = new AuthResponse(-1, paymentUrl, authRequest.getAmount(), null);
+            return response;
         } else {
             return null;
         }
@@ -94,5 +100,10 @@ public class ProxyController {
     @PostMapping(path = "/redirecToSecondaryBankQRcode")
     public PccResponse redirecToSecondaryBankQRcode(@RequestBody PccRequest pccRequest) {
         return secondaryBankClient.issuerBankPaymentQRcode(pccRequest);
+    }
+
+    @PostMapping(path = "/completePaypalPayment")
+    public CompletedOrder buy(@RequestBody String token) {
+        return payPalClient.completePayment(token);
     }
 }
