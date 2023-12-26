@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class PaymentService {
@@ -251,10 +253,18 @@ public class PaymentService {
             hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
 
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix bitMatrix = qrCodeWriter.encode("Amount:"+transaction.getAmount()+"\n"+
-                    "Currency:"+"RSD"+"\n"+
-                    "Name:"+client.getName()+"\n"+
-                    "Account number:"+client.getAccountNumber(), BarcodeFormat.QR_CODE, width, height, hints);
+            String content = "K:PR|V:01|C:1|R:"+client.getAccountNumber()+"|"+
+                    "N:"+client.getName()+"|"+
+                    "I:RSD"+transaction.getAmount()+"|"+
+                    "SF:221";
+
+            if(!validateQRcode(content)){
+                return null;
+            }
+
+            BitMatrix bitMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, width, height, hints);
+
+
 
             BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
 
@@ -386,6 +396,42 @@ public class PaymentService {
         } catch (NullPointerException e) {
             return new PccResponse(pccRequest.getAcquiererOrderId(), pccRequest.getAcquiererTimestamp(),
                     -1, LocalDateTime.now(), PaymentStatus.ERROR);
+        }
+    }
+
+    private boolean validateQRcode(String qrCode){
+
+        String[] parts = qrCode.split("\\|");
+
+        String regexAccountNumber = "[0-9]{18}$";
+        Pattern patternAccountNumber = Pattern.compile(regexAccountNumber);
+        String accountNumber = parts[3].split(":")[1];
+        Matcher matcherAccountNumber = patternAccountNumber.matcher(accountNumber);
+        boolean an = matcherAccountNumber.matches();
+
+
+        String regexName = "[A-Za-z ]{3,20}$";
+        Pattern patternName = Pattern.compile(regexName);
+        Matcher matcherName = patternName.matcher(parts[4].split(":")[1]);
+        boolean n = matcherName.matches();
+
+        String regexAmount = "(^RSD[0-9]+\\.[0-9]?)$";
+        Pattern patternAmount = Pattern.compile(regexAmount);
+        Matcher matcherAmount = patternAmount.matcher(parts[5].split(":")[1]);
+        boolean a = false;
+        if(parts[5].split(":")[1].length()>=5 && parts[5].split(":")[1].length()<=18 && matcherAmount.matches()) {
+            a = true;
+        }
+
+        String regexSF = "[0-9]{3}$";
+        Pattern patternSF = Pattern.compile(regexSF);
+        Matcher matcherSF = patternSF.matcher(parts[6].split(":")[1]);
+        boolean sf = matcherSF.matches();
+
+        if(matcherAccountNumber.matches() && matcherName.matches() && a && matcherSF.matches()) {
+            return true;
+        } else {
+            return false;
         }
     }
 

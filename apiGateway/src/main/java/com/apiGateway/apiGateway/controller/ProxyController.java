@@ -32,7 +32,11 @@ public class ProxyController {
     private SecondaryBankClient secondaryBankClient;
 
     @Autowired
+
+    private PayPalClient payPalClient;
+
     private CryptoPaymentClient cryptoPaymentClient;
+
     @PostMapping(path = "/buy")
     public ResponseEntity<AuthResponse> buy(@RequestBody BuyRequest buyRequest) {
         return pspClient.buy(buyRequest);
@@ -45,13 +49,13 @@ public class ProxyController {
             return primaryBankClient.auth(authRequest);
         } else if (authRequest.getPaymentType().equals(PaymentType.QR_CODE)) {
             return primaryBankClient.generateQRcode(authRequest);
-        } else if (authRequest.getPaymentType().equals(PaymentType.PAYPAL)) {
-            return null;
+        } else if (PaymentType.PAYPAL.equals(authRequest.getPaymentType())) {
+            PaymentOrder paymentOrder = payPalClient.createPayment(authRequest.getAmount());
+            return new AuthResponse(-1, paymentOrder.getRedirectUrl(), authRequest.getAmount(), null);
         } else if (authRequest.getPaymentType().equals(PaymentType.CRYPTO)){
             CryptoPayingRequest cryptoRequest = new CryptoPayingRequest();
             cryptoRequest.setAmount(authRequest.getAmount());
             AuthResponse response;
-
             String paymentUrl = cryptoPaymentClient.pay(cryptoRequest);
             response = new AuthResponse(-1, paymentUrl, authRequest.getAmount(), null);
             return response;
@@ -96,5 +100,10 @@ public class ProxyController {
     @PostMapping(path = "/redirecToSecondaryBankQRcode")
     public PccResponse redirecToSecondaryBankQRcode(@RequestBody PccRequest pccRequest) {
         return secondaryBankClient.issuerBankPaymentQRcode(pccRequest);
+    }
+
+    @PostMapping(path = "/completePaypalPayment")
+    public CompletedOrder buy(@RequestBody String token) {
+        return payPalClient.completePayment(token);
     }
 }

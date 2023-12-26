@@ -9,6 +9,8 @@ import {TransactionSuccessComponent} from "./transaction-success/transaction-suc
 import {TransactionFailedComponent} from "./transaction-failed/transaction-failed.component";
 import {TransactionErrorComponent} from "./transaction-error/transaction-error.component";
 import { QRcodePaymentComponent } from './qrcode-payment/qrcode-payment.component';
+import {CapturePaymentComponent} from "./capture-payment-component/capture-payment-component";
+import {CancelPaymentComponent} from "./cancel-payment-component/cancel-payment-component";
 import { CryptoPaymentComponent } from './crypto-payment/crypto-payment.component';
 import { PaymentTypeComponent } from './payment-type/payment-type.component';
 
@@ -21,7 +23,10 @@ import { PaymentTypeComponent } from './payment-type/payment-type.component';
     TransactionErrorComponent,
     QRcodePaymentComponent,
     CryptoPaymentComponent,
-    PaymentTypeComponent
+    PaymentTypeComponent,
+    CapturePaymentComponent,
+    CancelPaymentComponent,
+    CryptoPaymentComponent
   ],
     imports: [
         CommonModule,

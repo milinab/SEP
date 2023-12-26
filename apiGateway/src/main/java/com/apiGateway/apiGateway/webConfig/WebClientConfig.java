@@ -1,5 +1,6 @@
 package com.apiGateway.apiGateway.webConfig;
 
+
 import com.apiGateway.apiGateway.webClient.*;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +116,29 @@ public class WebClientConfig {
     }
 
     @Bean
+        public WebClient payPalWebClient() {
+
+        HttpClient httpClient = HttpClient.create()
+                .doOnConnected(conn -> conn
+                        .addHandler(new ReadTimeoutHandler(20)) // 10 sekundi
+                );
+
+        return WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .baseUrl("http://paypal")
+                .filter(filterFunction)
+                .build();
+        }
+
+        @Bean
+        public PayPalClient payPalClient() {
+            HttpServiceProxyFactory httpServiceProxyFactory
+                    = HttpServiceProxyFactory
+                    .builder(WebClientAdapter.forClient(payPalWebClient()))
+                    .build();
+            return httpServiceProxyFactory.createClient(PayPalClient.class);
+        }
+
     public WebClient cryptoPaymentWebClient() {
 
         HttpClient httpClient = HttpClient.create()
@@ -137,4 +161,5 @@ public class WebClientConfig {
                 .build();
         return httpServiceProxyFactory.createClient(CryptoPaymentClient.class);
     }
+
 }

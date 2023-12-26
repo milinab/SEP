@@ -14,6 +14,10 @@ public class PaymentController {
 
     private PaymentService paymentService;
 
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
     @PostMapping(path = "/auth")
     public AuthResponse auth(@RequestBody AuthRequest authRequest) {
         return new AuthResponse(-1, "success paypal", 0.0);
